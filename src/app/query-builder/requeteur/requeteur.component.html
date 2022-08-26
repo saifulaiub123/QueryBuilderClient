@@ -1,0 +1,1582 @@
+<p-messages [value]="msags"></p-messages>
+<p-sidebar [(visible)]="visibleSidebar1" [style]="{width:'25em'} " position="right" [modal]="false ">
+  <div>
+    <div *ngIf="pdfSideBar">
+      <div class="mb-5">
+        <h2 style="font-weight:normal;color: #0f0dab;text-align: center;">PDF </h2>
+      </div>
+      <div class="p-field-checkbox ml-0 ">
+        <div>
+          <label for="binary" style="font-size: 20px;">Theme</label>
+        </div>
+      </div>
+
+      <div class=" ml-3 ">
+        <div>
+          <p-inputSwitch class="ml-2" [(ngModel)]="themeStriped" [ngModelOptions]="{standalone: true}"
+            (click)="themeToBlue()"></p-inputSwitch>
+          <label for="binary" class="ml-2"> Blue </label>
+        </div>
+
+        <div>
+          <p-inputSwitch class="ml-2" [(ngModel)]="themeGrid" [ngModelOptions]="{standalone: true}"
+            (click)="themeToGreen()"></p-inputSwitch>
+          <label for="binary" class="ml-2"> Green </label>
+        </div>
+        <div>
+          <p-inputSwitch class="ml-2" [(ngModel)]="themePlain" [ngModelOptions]="{standalone: true}"
+            (click)="themeToPlain()"></p-inputSwitch>
+          <label for="binary" class="ml-2"> White </label>
+        </div>
+      </div>
+
+      <div class="p-field-checkbox ml-0 ">
+        <div>
+          <label for="binary" style="font-size: 20px;">Forms</label>
+        </div>
+      </div>
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="addTitle" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label pTooltip="Pour éviter des redondances 
+  dans les résultats" for="binary" class="ml-2"> Add title </label>
+      </div>
+
+      <div *ngIf="addTitle">
+        <input pInputText [(ngModel)]="pdfTitle" [ngModelOptions]="{standalone: true}" class="ui-inputtext"
+          style="width: 60%;margin-left: 10%;margin-top: 1%;margin-bottom: 2%;" placeholder=","
+          i18n-placeholder="@@tax-creation.placeholder" autocomplete="off" type="text" name="abbreviation" />
+      </div>
+
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="addLogo" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label for="binary" class="ml-2"> Add logo </label>
+      </div>
+
+
+
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="addPage" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label pTooltip="" for="binary" class="ml-2"> Add pagination </label>
+      </div>
+
+      <div *ngIf="addPage">
+        <div class="p-field-checkbox ml-0 ">
+          <div>
+            <label for="binary" style="font-size: 20px;">Page Number position</label>
+          </div>
+        </div>
+        <div style="width: 60%;margin-left: 10%">
+          <p-dropdown placeholder="Number position" [options]="pagePositions" [(ngModel)]="pagePosition" [filter]="true"
+            name="abbreviation" optionLabel="label" [ngModelOptions]="{standalone: true}"></p-dropdown>
+        </div>
+
+        <div class="p-field-checkbox ml-0 ">
+          <div>
+            <label for="binary" style="font-size: 20px;">Page Number Format</label>
+          </div>
+        </div>
+        <div style="width: 60%;margin-left: 10%; margin-bottom: 5%;">
+          <p-dropdown placeholder="Number style" [options]="pageNumberStyles" [(ngModel)]="pageNumberStyle"
+            [filter]="true" name="abbreviation" optionLabel="label" [ngModelOptions]="{standalone: true}"></p-dropdown>
+        </div>
+      </div>
+
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="addDate" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label for="binary" class="ml-2"> Add date </label>
+      </div>
+
+      <div *ngIf="addDate">
+
+        <div class="p-field-checkbox ml-0 ">
+          <div>
+            <label for="binary" style="font-size: 20px;">Date Position</label>
+          </div>
+        </div>
+        <div style="width: 60%;margin-left: 10%">
+          <p-dropdown placeholder="Number position" [options]="datePositions" [(ngModel)]="datePosition" [filter]="true"
+            name="abbreviation" optionLabel="label" [ngModelOptions]="{standalone: true}"></p-dropdown>
+        </div>
+        <div class="p-field-checkbox ml-0 ">
+          <div>
+            <label for="binary" style="font-size: 20px;">Date Format</label>
+          </div>
+        </div>
+        <div style="width: 60%;margin-left: 10%">
+          <p-dropdown placeholder="date format" [options]="dateFormats" [(ngModel)]="dateFormat" [filter]="true"
+            name="abbreviation" optionLabel="label" [ngModelOptions]="{standalone: true}"></p-dropdown>
+        </div>
+      </div>
+
+
+      <div class="p-field-checkbox ml-0 ">
+        <div>
+          <label for="binary" style="font-size: 20px;">Display</label>
+        </div>
+      </div>
+
+      <div class=" ml-3 ">
+        <div>
+          <p-inputSwitch class="ml-2" [(ngModel)]="pdfHorizental" [ngModelOptions]="{standalone: true}"
+            (click)="displayToVertical()"></p-inputSwitch>
+          <label for="binary" class="ml-2"> Paysage </label>
+        </div>
+
+        <div>
+          <p-inputSwitch class="ml-2" [(ngModel)]="pdfVertical" [ngModelOptions]="{standalone: true}"
+            (click)="displayToHorizental()"></p-inputSwitch>
+          <label for="binary" class="ml-2"> Portrait </label>
+        </div>
+      </div>
+      
+      <div class="p-field-checkbox ml-0 ">
+        <div>
+          <label for="binary" style="font-size: 20px;">Columns width</label>
+        </div>
+      </div>
+
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="changeWidth" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label for="binary" class="ml-2"> Change column width </label>
+      </div>
+      <div *ngIf="changeWidth">
+      <div *ngFor="let value of columnPdfWidths">
+        <label for="binary" class="ml-2"> {{value.label}} </label>
+        <input pInputText [(ngModel)]="value.value" [ngModelOptions]="{standalone: true}" class="ui-inputtext"
+          style="width: 60%;margin-left: 10%;margin-top: 1%;margin-bottom: 2%;" placeholder="Ex:40"
+          i18n-placeholder="@@tax-creation.placeholder" autocomplete="off" type="number" 
+            name="abbreviation" />
+      </div>
+    </div>
+      <button pButton type="button" (click)="exportData()" class="mt-4" label="Export"
+        styleClass="p-button-success"></button>
+    </div>
+
+
+    <div *ngIf="excelSideBar">
+      <div class="mb-5">
+        <h1 style="font-weight:normal;color: #0f0dab;text-align: center;">EXCEL </h1>
+      </div>
+
+
+      <div class="p-field-checkbox ml-0 ">
+        <div>
+          <label for="binary" style="font-size: 20px;">Forms</label>
+        </div>
+      </div>
+
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="addTitleExcel" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label pTooltip="Pour éviter des redondances 
+  dans les résultats" for="binary" class="ml-2"> Add title </label>
+      </div>
+
+      <div *ngIf="addTitleExcel">
+        <input pInputText [(ngModel)]="excelTitle" [ngModelOptions]="{standalone: true}" class="ui-inputtext"
+          style="width: 60%;margin-left: 10%;margin-top: 2%;margin-bottom: 2%;" placeholder=","
+          i18n-placeholder="@@tax-creation.placeholder" autocomplete="off" type="text" name="abbreviation" />
+      </div>
+
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="addDateExcel" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label for="binary" class="ml-2"> Add date </label>
+      </div>
+      <div *ngIf="addDateExcel">
+        <div class="p-field-checkbox ml-0 ">
+          <div>
+            <label for="binary" style="font-size: 20px;">Date Format</label>
+          </div>
+        </div>
+        <div style="width: 60%;margin-left: 10%;margin-bottom: 5%;">
+          <p-dropdown placeholder="date format" [options]="dateFormats" [(ngModel)]="dateFormatExcel" [filter]="true"
+            name="abbreviation" optionLabel="label" [ngModelOptions]="{standalone: true}"></p-dropdown>
+        </div>
+      </div>
+
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="addLogoExcel" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label for="binary" class="ml-2"> Add logo </label>
+      </div>
+
+      <div class="p-field-checkbox ml-0 ">
+        <div>
+          <label for="binary" style="font-size: 20px;">Header Color</label>
+        </div>
+      </div>
+      <div style="width: 60%;margin-left: 10%">
+        <p-dropdown placeholder="Header color" [options]="headerColorExcels" [(ngModel)]="headerColorExcel"
+          [filter]="true" name="abbreviation" optionLabel="label" [ngModelOptions]="{standalone: true}"></p-dropdown>
+      </div>
+
+
+      <div>
+        <p-button type="button" class="mt-4" (click)="exportDataExcel()" label="Export" styleClass="p-button-success">
+        </p-button>
+      </div>
+    </div>
+
+    <div *ngIf="csvSideBar">
+      <div class="mb-5">
+        <h2 style="font-weight:normal;color: #0f0dab;text-align: center;">CSV </h2>
+      </div>
+      <div class="p-field-checkbox ml-0 ">
+        <div>
+          <label for="binary" style="font-size: 20px;">Forms</label>
+        </div>
+      </div>
+
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="addCsvHeader" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label pTooltip="Pour éviter des redondances 
+  dans les résultats" for="binary" class="ml-2"> Show headers </label>
+      </div>
+
+      <div class="p-field-checkbox ml-4 ">
+        <p-inputSwitch [(ngModel)]="addCsvShowTitle" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+        <label for="binary" class="ml-2"> Add Title </label>
+      </div>
+      <div *ngIf="addCsvShowTitle">
+        <input pInputText [(ngModel)]="csvTitle" [ngModelOptions]="{standalone: true}" class="ui-inputtext"
+          style="width: 60%;margin-left: 10%;margin-top: 2%;margin-bottom: 2%;" placeholder=","
+          i18n-placeholder="@@tax-creation.placeholder" autocomplete="off" type="text" name="abbreviation" />
+      </div>
+
+      <div class="p-field-checkbox ml-0 ">
+        <div>
+          <label for="binary" style="font-size: 20px;">String Quote</label>
+        </div>
+      </div>
+
+      <div class=" ml-3 ">
+        <div>
+          <p-inputSwitch class="ml-2" [(ngModel)]="singleQuoteCsv" [ngModelOptions]="{standalone: true}"
+            (click)="singleQuote()"></p-inputSwitch>
+          <label for="binary" class="ml-2"> Single </label>
+        </div>
+        <div>
+          <p-inputSwitch class="ml-2" [(ngModel)]="doubleQuoteCsv" [ngModelOptions]="{standalone: true}"
+            (click)="doubleQuote()"></p-inputSwitch>
+          <label for="binary" class="ml-2"> Double </label>
+        </div>
+      </div>
+
+      <div class="p-field-checkbox ml-0 ">
+        <div>
+          <label for="binary" style="font-size: 20px;">Separator </label>
+        </div>
+      </div>
+
+      <input pInputText [(ngModel)]="csvSeparator" [ngModelOptions]="{standalone: true}" class="ui-inputtext"
+        style="width: 35%;margin-left: 8%;margin-top: 2%;" i18n-placeholder="@@tax-creation.placeholder"
+        autocomplete="off" type="text" name="abbreviation" />
+
+
+      <div>
+        <p-button type="button" class="mt-4" (click)="exportDataCsv()" label="Export" styleClass="p-button-success">
+        </p-button>
+      </div>
+    </div>
+  </div>
+</p-sidebar>
+
+
+<p-confirmDialog [style]="{width: '30vw'} " key="positionDialog" [position]="position" [baseZIndex]="10000">
+</p-confirmDialog>
+<div class="content-section">
+  <form>
+    <div class="form-content content-justify ui-widget">
+      <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid">
+        <div class="content-section">
+          <form>
+            <div class="row">
+              <div class="col-sm-12 flag-display" style="display: flex">
+                <ul style="width: 100%">
+                  <li [ngClass]="{
+                      flag: true,
+                      'flagvalide ':
+                        displayIdentification || displayJointures || displayChamps || displayFilters || displayResultat
+                    }" (click)="displayIdentificationClickHandler()">
+                    Identification
+                  </li>
+                  <li [ngClass]="{
+                      flag: true,
+                      'flagvalide ': displayJointures || displayChamps || displayFilters || displayResultat
+                    }" (click)="displayJointuresClickHandler()">
+                    Jointures
+                  </li>
+                  <li [ngClass]="{ flag: true, 'flagvalide ': displayChamps || displayFilters || displayResultat }"
+                    (click)="displayChampsClickHandler()">
+                    Champs
+                  </li>
+                  <li [ngClass]="{ flag: true, 'flagvalide ': displayFilters || displayResultat }"
+                    (click)="displayFiltersClickHandler()">Filters</li>
+                  <li [ngClass]="{ flag: true, 'flagvalide ': displayResultat }"
+                    (click)="displayResultatClickHandler()">Résultat</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="form-content content-justify ui-widget">
+              <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid">
+                <div class="row">
+                  <div class="col-sm-4"></div>
+                </div>
+                <div *ngIf="displayIdentification">
+
+                  <div class="row content-section-row form-input">
+                    <div class="col-12 col-sm-4">
+                      <label for="abbreviation" i18n="">Désignation </label>
+                      <div>
+                        <input pInputText [(ngModel)]="dataSource.designation" [ngModelOptions]="{standalone: true}"
+                          class="ui-inputtext" style="width: 100%" placeholder="Enter Designation "
+                          #Designation="ngModel" required="required" i18n-placeholder="@@tax-creation.placeholder"
+                          autocomplete="off" required="required" type="text" name="abbreviation" required />
+                        <div [hidden]="Designation.valid || Designation.pristine" class="alert alert-danger">
+                          Please enter designation
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-sm-4">
+                      <label for="abbreviation" i18n="">Classification</label>
+                      <div style="display: flex">
+                        <p-dropdown placeholder="Select Classification" [options]="classifications"
+                          [(ngModel)]="dataSource.classification" [filter]="true" name="abbreviation"
+                          #Classification="ngModel" required="required" [style]="{ width: '100%' }"
+                          optionLabel="designation" [ngModelOptions]="{standalone: true}"
+                          (onChange)="selectedDataSource()"></p-dropdown>
+                        <button type="button" icon="fa fa-plus" class="button-plus input-button" pButton></button>
+                      </div>
+                      <div [hidden]="Designation.valid || Designation.pristine" class="alert alert-danger">
+                        Please enter classification
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-sm-4">
+                      <label for="abbreviation" i18n="">Table principale</label>
+                      <p-dropdown placeholder="Select Main Table" [options]="tables" [(ngModel)]="selectedTable"
+                        [filter]="true" name="abbreviation" [style]="{ width: '100%' }" optionLabel="name"
+                        #tableP="ngModel" required="required" (onChange)="changeTablePrincipale(selectedTable)"
+                        [ngModelOptions]="{standalone: true}">
+                      </p-dropdown>
+                      <div [hidden]="Designation.valid || Designation.pristine" class="alert alert-danger">
+                        Please enter main table
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-sm-4">
+                      <label for="abbreviation" i18n="">Table associés </label>
+                      <p-multiSelect [options]="aTables" [(ngModel)]="joinedTables" defaultLabel="Joined tables"
+                        display="chip" optionLabel="name" [ngModelOptions]="{standalone: true}"
+                        (onChange)="changeTableAssociated()">
+                      </p-multiSelect>
+                    </div>
+
+                    <div class="col-12 col-sm-4">
+                      <label for="abbreviation" i18n="">Ecran concerné </label>
+                      <p-dropdown placeholder="Select Ecran" [options]="ecrans" [filter]="true" name="abbreviation"
+                        [style]="{ width: '100%' }"></p-dropdown>
+                    </div>
+                  </div>
+
+                  <div class="row justify-buton-top">
+                    <div class="ml-auto p-2 bd-highlight">
+                      <button (click)="displayJointuresClickHandler()" pButton type="button"
+                        icon="fa fa-arrow-circle-right" label="Suivant" i18n-label=""
+                        class="button-toolbar btn-outline-primary"
+                        [disabled]=" !Designation.valid || !Classification.valid || !tableP.valid"></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="displayJointures">
+                  <button type="button" icon="fa fa-plus" class="button-plus-add input-button"
+                    (click)="addJoin(joinModel)" pButton></button>
+                  <div *ngFor="let joinModel of joinModels">
+                    <div class="">
+                      <div class="row content-implementation form-input">
+                        <div class="col-12 col-sm-1">
+                          <label for="abbreviation" i18n=""></label>
+                          <div>
+
+                            <button type="button" icon="fa fa-times" class="button-plus-delete input-button" pButton
+                              (click)="deleteJoin(joinModel)"></button>
+                          </div>
+                        </div>
+                        <!--
+                      <div class="col-12 col-sm-1">
+                        <label for="abbreviation" i18n=""
+                          >(
+                          <div style="display: inline-grid; margin: 7px 10px 0px 5px">
+                            <i class="fa fa-minus" style="margin-bottom: -9px; color: gray" aria-hidden="true"></i
+                            ><i class="fa fa-minus" style="margin-bottom: -9px; color: gray" aria-hidden="true"></i
+                            ><i class="fa fa-minus" style="margin-bottom: -9px; color: gray" aria-hidden="true"></i>
+                          </div>
+                          Et/Ou</label
+                        >
+                        <div style="display: flex">
+                          <input
+                            [(ngModel)]="joinModel.etou"
+                            [ngModelOptions]="{standalone: true}" 
+                            type="checkbox"
+                            style="display: block; width: 22px; height: 35px; margin-right: 20px"
+                            pTooltip="Cocher pour affecter / Décocher pour enlever"
+                          />
+                          <p-dropdown
+                            placeholder="EtOu"
+                            [options]="EtOu"
+                            [(ngModel)]="joinModel.Operator1"
+                            [filter]="true"
+                            style="width: 60% !important"
+                            name="abbreviation"
+                            [style]="{ width: '60%' }"
+                            [ngModelOptions]="{standalone: true}" 
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      -->
+                        <div class="col-12 col-sm-1">
+                          <label for="abbreviation" i18n=""> Type</label>
+                          <div style="display: flex">
+                            <p-dropdown [options]="joins" placeholder="Select type" [(ngModel)]="joinModel.type"
+                              [filter]="true" style="width: 100% !important" name="abbreviation"
+                              optionLabel="designation" [ngModelOptions]="{standalone: true}" required="true"
+                              [style]="{ width: '100% ' }"></p-dropdown>
+                          </div>
+                          <span style="color:red" *ngIf="!joinModel.type">
+                          </span>
+                        </div>
+
+                        <div class="col-12 col-sm-2">
+                          <label for="abbreviation" i18n=""> Main Table</label>
+                          <div>
+                            <p-dropdown [options]="filterTables" placeholder="Main table"
+                              [(ngModel)]="joinModel.tablePrincipale" style="width: 100% !important" [filter]="true"
+                              name="abbreviation" [style]="{ width: '100%' }" optionLabel="name" required="true"
+                              (onChange)="selectedJoinTable1(joinModel)" [ngModelOptions]="{standalone: true}">
+                            </p-dropdown>
+                          </div>
+                          <span style="color:red" *ngIf="!joinModel.tablePrincipale">
+                          </span>
+                        </div>
+
+                        <div class="col-12 col-sm-2">
+                          <label for="abbreviation" i18n=""> Champ</label>
+                          <div>
+                            <p-dropdown placeholder="Select Field" [options]="joinModel.tableField" required="true"
+                              [(ngModel)]="joinModel.champ1" style="width: 100% !important" [filter]="true"
+                              name="abbreviation" optionLabel="name" [ngModelOptions]="{standalone: true}"
+                              [style]="{ width: '100%' }">
+                            </p-dropdown>
+                          </div>
+                          <span style="color:red" *ngIf="!joinModel.champ1">
+
+                          </span>
+                        </div>
+
+                        <div class="col-12 col-sm-1">
+                          <label for="abbreviation" i18n=""> Opérateur</label>
+                          <div>
+                            <p-dropdown [options]="operators" placeholder="Select Operator" required="true"
+                              [(ngModel)]="joinModel.operator2" style="width: 100% !important" [filter]="true"
+                              name="abbreviation" optionLabel="designation" [ngModelOptions]="{standalone: true}"
+                              [style]="{ width: '100%' }">
+                            </p-dropdown>
+                          </div>
+                          <span style="color:red" *ngIf="!joinModel.operator2">
+
+                          </span>
+                        </div>
+
+                        <div class="col-12 col-sm-2">
+                          <label for="abbreviation" i18n=""> Joined Table</label>
+                          <div>
+                            <p-dropdown [options]="filterTables" placeholder="join Table" required="true"
+                              [(ngModel)]="joinModel.joinedTable" style="width: 100% !important" [filter]="true"
+                              name="abbreviation" [style]="{ width: '100%' }" optionLabel="name"
+                              (onChange)="selectedJoinTable2(joinModel)" [ngModelOptions]="{standalone: true}">
+                            </p-dropdown>
+                          </div>
+                          <span style="color:red" *ngIf="!joinModel.joinedTable">
+
+                          </span>
+                        </div>
+
+                        <div class="col-12 col-sm-2">
+                          <label for="abbreviation" i18n=""> Champ</label>
+                          <div>
+                            <p-dropdown placeholder="Select Field" [options]="joinModel.tableField1" required="true"
+                              [(ngModel)]="joinModel.champ2" style="width: 100% !important" [filter]="true"
+                              name="abbreviation" optionLabel="name" [ngModelOptions]="{standalone: true}"
+                              [style]="{ width: '100%' }">
+                            </p-dropdown>
+                          </div>
+                          <span style="color:red" *ngIf="!joinModel.champ2">
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+
+                    <!--
+                  <div class="">
+                    <div class="row content-implementation form-input">
+                      <div class="col-12 col-sm-1">
+                        <label for="abbreviation" i18n=""></label>
+                        <div>
+                          <button type="button" icon="fa fa-plus" class="button-plus-add input-button" pButton></button>
+                          <button
+                            type="button"
+                            icon="fa fa-times"
+                            class="button-plus-delete input-button"
+                            pButton
+                          ></button>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-sm-1">
+                        <label for="abbreviation" i18n=""
+                          >(
+                          <div style="display: inline-grid; margin: 7px 10px 0px 5px">
+                            <i class="fa fa-minus" style="margin-bottom: -9px; color: gray" aria-hidden="true"></i
+                            ><i class="fa fa-minus" style="margin-bottom: -9px; color: gray" aria-hidden="true"></i
+                            ><i class="fa fa-minus" style="margin-bottom: -9px; color: gray" aria-hidden="true"></i>
+                          </div>
+                          Et/Ou</label
+                        >
+                        <div style="display: flex">
+                          <input
+                            type="checkbox"
+                            style="display: block; width: 22px; height: 35px; margin-right: 20px"
+                            pTooltip="Cocher pour affecter / Décocher pour enlever"
+                          />
+                          <p-dropdown
+                            [options]="EtOu"
+                            [filter]="true"
+                            style="width: 60% !important"
+                            name="abbreviation"
+                            [style]="{ width: '60%' }"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-1">
+                        <label for="abbreviation" i18n=""> Type</label>
+                        <div style="display: flex">
+                          <p-dropdown
+                            [options]="joins"
+                            [filter]="true"
+                            style="width: 100% !important"
+                            name="abbreviation"
+                            optionLabel="designation"
+                            [style]="{ width: '100% ' }"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-2">
+                        <label for="abbreviation" i18n=""> Table</label>
+                        <div>
+                          <p-dropdown
+                            [options]="tables"
+                            style="width: 100% !important"
+                            [filter]="true"
+                            name="abbreviation"
+                            [style]="{ width: '100%' }"
+                            optionLabel="name"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-2">
+                        <label for="abbreviation" i18n=""> Champ</label>
+                        <div>
+                          <p-dropdown
+                            [options]="example1"
+                            style="width: 100% !important"
+                            [filter]="true"
+                            name="abbreviation"
+                            [style]="{ width: '100%' }"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-1">
+                        <label for="abbreviation" i18n=""> Opérateur</label>
+                        <div>
+                          <p-dropdown
+                            [options]="operators"
+                            style="width: 100% !important"
+                            [filter]="true"
+                            name="abbreviation"
+                            optionLabel="designation"
+                            [style]="{ width: '100%' }"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-2">
+                        <label for="abbreviation" i18n=""> Table</label>
+                        <div>
+                          <p-dropdown
+                            [options]="filterTables"
+                            style="width: 100% !important"
+                            [filter]="true"
+                            name="abbreviation"
+                            [style]="{ width: '100%' }"
+                            optionLabel="name"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-2">
+                        <label for="abbreviation" i18n=""> Champ</label>
+                        <div>
+                          <p-dropdown
+                            [options]="example1"
+                            style="width: 100% !important"
+                            [filter]="true"
+                            name="abbreviation"
+                            [style]="{ width: '100%' }"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  -->
+                  </div>
+
+                  <div class="row justify-buton-top" style="margin-top: -22px">
+                    <div class="ml-auto p-2 bd-highlight"></div>
+                    <div class="ml-auto p-2 bd-highlight">
+                      <button (click)="displayIdentificationClickHandler()" pButton type="button"
+                        icon="fa fa-arrow-circle-left" label="Précédent" i18n-label=""
+                        class="ui-button-white button-toolbar btn-outline-primary"></button>
+                      <button (click)="displayChampsClickHandler()" pButton type="button"
+                        icon="fa fa-arrow-circle-right" label="Suivant" i18n-label="" [disabled]="!joinModel.type || !joinModel.tablePrincipale || !joinModel.champ1 || 
+                        !joinModel.operator2 || !joinModel.joinedTable || !joinModel.champ2"
+                        class="button-toolbar btn-outline-primary"></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="displayChamps">
+                  <div class="content-justify ui-widget">
+                    <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid">
+                      <div class="row">
+                        <div class="class=col-12 col-md-6 col-lg-4">
+                          <div class="title-section c-dividing" style="border: solid 1px #dfe6ee; border-radius: 7px">
+                            <div style="padding: 20px">
+                              <div class="row">
+                                <span i18n="">Champs disponibles</span>
+                              </div>
+                              <!--
+                              <div class="row">
+                              <div class="col-3 col-sm-4">
+                                <label for="abbreviation" i18n=""> table1 </label>
+                              </div>
+                              <div class="col-3 col-sm-4">
+                                <p-multiSelect
+                                [options]="tables"
+                                [(ngModel)]="selectedTab"
+                                 display="chip"
+                                 optionLabel="name"
+                                 (onChange)="selectedAssociated($event)"
+
+                                 >
+                                </p-multiSelect>
+                              </div>
+
+                            </div>
+                            -->
+                              <p-tree [value]="files" [filter]="true" selectionMode="checkbox"
+                                [propagateSelectionUp]="false" [propagateSelectionDown]="false"
+                                [(selection)]="selectedItemFields"></p-tree>
+                              <!-- (onNodeSelect)="selectedFields($event)"
+                                (onNodeUnselect)="unselectedFields($event)"-->
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-1 d-flex align-items-center">
+                          <div style="display: block">
+                            <!--
+                            <button
+                              type="button"
+                              icon="fa fa-angle-double-left"
+                              class="button-plus input-button"
+                              style="display: block; margin-bottom: 30px"
+                              pButton
+                            ></button>
+                            <button
+                              type="button"
+                              icon="fa fa-angle-double-right"
+                              class="button-plus input-button"
+                              pButton
+                            ></button>
+                            -->
+                          </div>
+                        </div>
+
+                        <div class="class=col-12 col-md-6 col-lg-6"
+                          style="border: solid 1px #dfe6ee; border-radius: 7px">
+                          <div style="padding: 20px">
+                            <div class="row">
+                              <div class="title-section c-dividing">
+                                <span i18n="">Champs sélectionnés</span>
+                              </div>
+                              <div class="p-field-checkbox ml-4 ">
+                                <!--
+                                <p-checkbox
+                                [(ngModel)]="distinctValue"
+                                [binary]="true"
+                                inputId="binary"
+                                (onChange)="checkDistinct(distinctValue)"
+                                [ngModelOptions]="{standalone: true}" ></p-checkbox>-->
+                                <p-inputSwitch [(ngModel)]="distinctValue" [ngModelOptions]="{standalone: true}"
+                                  (onChange)="checkDistinct(distinctValue)"></p-inputSwitch>
+                                <label pTooltip="Pour éviter des redondances 
+                                dans les résultats" for="binary" class="ml-2"> Distinct </label>
+                              </div>
+
+                              <div class="col-12">
+                                <p-table [responsive]="true" class="header-table" #table [value]="selectedItemFields"
+                                  dataKey="id" editMode="row" [paginator]="true" [rows]="10"
+                                  [showCurrentPageReport]="true" [rowsPerPageOptions]="" pageLinks="4"
+                                  [globalFilterFields]=""
+                                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                  i18n-currentPageReportTemplate="@@employee-list.currentPageReportTemplate">
+                                  <ng-template pTemplate="header" let-searchColumns>
+                                    <tr>
+                                      <th [pSortableColumn]="'designation'" class="width-ten"
+                                        style="text-align: -webkit-center">
+                                        <p-header i18n=""><input _ngcontent-fay-c198="" type="checkbox" id="active"
+                                            name="active" class="checkbox align-checkbox ng-untouched ng-pristine"
+                                            ng-reflect-name="active" style="display: initial !important" />
+                                        </p-header>
+                                      </th>
+                                      <th [pSortableColumn]="'abbreviation'" class="width-fortyFive">
+                                        <p-header i18n="">Nom Champ </p-header>
+                                      </th>
+                                      <!--
+                                      <th [pSortableColumn]="'designation'" class="width-fortyFive">
+                                        <p-header i18n="">Désignation </p-header>
+                                      </th>
+                                      -->
+                                      <th [pSortableColumn]="'designation'" class="width-fortyFive">
+                                        <p-header i18n="">Désignation </p-header>
+                                      </th>
+                                      <th [pSortableColumn]="'designation'" class="width-fortyFive">
+                                        <p-header i18n="">Nom Table </p-header>
+                                      </th>
+                                      <th [pSortableColumn]="'designation'" class="width-fortyFive">
+                                        <p-header i18n="">Grouper </p-header>
+                                      </th>
+                                      <th [pSortableColumn]="'designation'" class="width-fortyFive">
+                                        <p-header i18n="">Function </p-header>
+                                      </th>
+
+                                    </tr>
+                                    <!--
+                                    <tr style="background: white">
+                                      <td
+                                        style="
+                                          background-color: inherit;
+                                          border: 1px solid #c8c8c8;
+                                          padding: 0.35em 0.757em;
+                                        "
+                                      >
+                                        <input
+                                          _ngcontent-fay-c198=""
+                                          type="checkbox"
+                                          id="active"
+                                          name="active"
+                                          class="checkbox align-checkbox ng-untouched ng-pristine"
+                                          ng-reflect-name="active"
+                                        />
+                                      </td>
+                                      <td
+                                        style="
+                                          background-color: inherit;
+                                          border: 1px solid #c8c8c8;
+                                          padding: 0.35em 0.757em;
+                                        "
+                                      >
+                                        Xxxxxxx
+                                      </td>
+                                      <td
+                                        style="
+                                          background-color: inherit;
+                                          border: 1px solid #c8c8c8;
+                                          padding: 0.35em 0.757em;
+                                        "
+                                      >
+                                        Xxxxxxx
+                                      </td>
+                                      <td
+                                      style="
+                                        background-color: inherit;
+                                        border: 1px solid #c8c8c8;
+                                        padding: 0.35em 0.757em;
+                                      "
+                                    >
+                                    <div class="col-3 col-sm-4">
+                                      <p-multiSelect
+                                      [options]="functions"
+                                      [(ngModel)]="selectedTab"
+                                       display="chip"
+                                       optionLabel="designation"
+                                       (onChange)="selectedAssociated($event)"
+
+                                       >
+                                      </p-multiSelect>
+                                    </div>
+                                    </td>
+                                    </tr>
+                                    <tr style="background: white">
+                                      <td
+                                        style="
+                                          background-color: inherit;
+                                          border: 1px solid #c8c8c8;
+                                          padding: 0.35em 0.757em;
+                                        "
+                                      >
+                                        <input
+                                          _ngcontent-fay-c198=""
+                                          type="checkbox"
+                                          id="active"
+                                          name="active"
+                                          class="checkbox align-checkbox ng-untouched ng-pristine"
+                                          ng-reflect-name="active"
+                                        />
+                                      </td>
+                                      <td
+                                        style="
+                                          background-color: inherit;
+                                          border: 1px solid #c8c8c8;
+                                          padding: 0.35em 0.757em;
+                                        "
+                                      >
+                                        Xxxxxxx
+                                      </td>
+                                      <td
+                                        style="
+                                          background-color: inherit;
+                                          border: 1px solid #c8c8c8;
+                                          padding: 0.35em 0.757em;
+                                        "
+                                      >
+                                        Xxxxxxx
+                                      </td>
+                                      <td
+                                      style="
+                                        background-color: inherit;
+                                        border: 1px solid #c8c8c8;
+                                        padding: 0.35em 0.757em;
+                                      "
+                                    >
+                                    <div class="col-3 col-sm-4">
+                                      <p-multiSelect
+                                      [options]="functions"
+                                      [(ngModel)]="selectedTab"
+                                       display="chip"
+                                       optionLabel="designation"
+                                       (onChange)="selectedAssociated($event)"
+
+                                       >
+                                      </p-multiSelect>
+                                    </div>
+                                    </td>
+                                    </tr> -->
+                                  </ng-template>
+
+                                  <ng-template pTemplate="body" let-dataSourceF>
+                                    <tr style="background: white">
+                                      <td style="
+                                         background-color: inherit;
+                                         border: 1px solid #c8c8c8;
+                                         padding: 0.35em 0.757em;
+                                       ">
+                                        <input _ngcontent-fay-c198="" type="checkbox"
+                                          (click)="changeOrderFields(dataSourceF)" id="active" name="active"
+                                          class="checkbox align-checkbox ng-untouched ng-pristine"
+                                          ng-reflect-name="active" />
+                                      </td>
+
+                                      <td style="
+                                          background-color: inherit;
+                                          border: 1px solid #c8c8c8;
+                                          padding: 0.35em 0.757em;
+                                        ">
+                                        {{dataSourceF.data.tableField.name}}
+                                      </td>
+                                      <!--
+                                      <td style="
+                                          background-color: inherit;
+                                          border: 1px solid #c8c8c8;
+                                          padding: 0.35em 0.757em;
+                                        ">
+                                        
+                                        <input pInputText  
+                                        class="ui-inputtext" [(ngModel)]="dataSourceF.data.designation" 
+                                        [ngModelOptions]="{standalone: true}"  style="width: 100%" placeholder="Enter designation "
+                                        i18n-placeholder="@@tax-creation.placeholder" autocomplete="off"
+                                        required="required" type="text" name="abbreviation" required />
+                                      </td>
+                                      -->
+                                      <td style="
+                                      background-color: inherit;
+                                      border: 1px solid #c8c8c8;
+                                      padding: 0.35em 0.757em;
+                                    ">
+                                        <input [(ngModel)]="dataSourceF.data.alias" pInputText class="ui-inputtext"
+                                          [ngModelOptions]="{standalone: true}" style="width: 100%"
+                                          placeholder="{{dataSourceF.data.tableField.name}}"
+                                          i18n-placeholder="@@tax-creation.placeholder" autocomplete="off" type="text"
+                                          name="abbreviation" />
+                                      </td>
+
+                                      <td style="
+                                        background-color: inherit;
+                                        border: 1px solid #c8c8c8;
+                                        padding: 0.35em 0.757em;
+                                      ">
+                                        {{dataSourceF.data.tableField.table.name}}
+                                      </td>
+
+                                      <td style="
+                                      background-color: inherit;
+                                      border: 1px solid #c8c8c8;
+                                      padding: 0.35em 0.757em;
+                                    ">
+                                        <input _ngcontent-fay-c198="" [(ngModel)]="dataSourceF.data.groupBy"
+                                          [ngModelOptions]="{standalone: true}" type="checkbox" id="active"
+                                          name="active" class="checkbox align-checkbox ng-untouched ng-pristine"
+                                          ng-reflect-name="active" />
+                                      </td>
+
+                                      <td style="
+                                      background-color: inherit;
+                                      border: 1px solid #c8c8c8;
+                                      padding: 0.35em 0.757em;
+                                    ">
+                                        <div class="col-6 col-sm-12">
+                                          <p-dropdown placeholder="Function" [showClear]="true" [options]="functions"
+                                            [(ngModel)]="dataSourceF.data.function" display="chip"
+                                            optionLabel="designation"
+                                            (onChange)="selectFunction(dataSourceF,dataSourceF.function)"
+                                            [ngModelOptions]="{standalone: true}">
+                                          </p-dropdown>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  </ng-template>
+                                </p-table>
+                              </div>
+                              <!-- <div class="col-sm-12">
+                                <p-pickList
+                                  [source]="champ"
+                                  [target]="designation"
+                                  sourceHeader="Champ"
+                                  targetHeader="Designation"
+                                  filterBy="brand"
+                                  dragdrop="true"
+                                >
+                                  <ng-template let-item pTemplate="item">
+                                    <div class="columnLabel">{{ item.label }}</div>
+                                    <div class="columnValue"></div>
+                                  </ng-template>
+                                </p-pickList>
+                              </div> -->
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-1 d-flex align-items-center">
+                          <div style="display: block">
+                            <button type="button" (click)="rowUp()" icon="fa fa-angle-double-up"
+                              class="button-plus input-button" style="display: block; margin-bottom: 11px"
+                              pButton></button>
+                            <!--
+                            <button type="button" icon="fa fa-angle-up" class="button-plus input-button"
+                              style="display: block; margin-bottom: 11px" pButton></button>
+                             
+
+                            <button type="button" icon="fa fa-angle-down" class="button-plus input-button"
+                              style="display: block; margin-bottom: 11px" pButton></button>
+                              -->
+                            <button type="button" (click)="rowDown()" icon="fa fa-angle-double-down"
+                              class="button-plus input-button" pButton></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row justify-buton-top" style="margin-top: 8px">
+                    <div class="ml-auto p-2 bd-highlight"></div>
+                    <div class="ml-auto p-2 bd-highlight">
+                      <button (click)="displayJointuresClickHandler()" pButton type="button"
+                        icon="fa fa-arrow-circle-left" label="Précédent" i18n-label=""
+                        class="ui-button-white button-toolbar btn-outline-primary"></button>
+                      <button (click)="displayFiltersClickHandler()" pButton type="button"
+                        icon="fa fa-arrow-circle-right" label="Suivant" i18n-label=""
+                        class="button-toolbar btn-outline-primary"></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="displayFilters">
+                  <div class="">
+                    <div class="row content-section-row   ">
+                      <div class=" col-12 col-sm-2">
+                        <label tooltipPosition="top" pTooltip="WHERE permet d’extraire les
+                        lignes d’une base de données qui respectent une condition" for=""
+                          class="text-primary">Condition</label>
+                        <div>
+                          <p-inputSwitch [(ngModel)]="checkedWhere" [ngModelOptions]="{standalone: true}"
+                            (onChange)="changeToWhere($event)"></p-inputSwitch>
+                        </div>
+                      </div>
+
+                      <div class=" col-12 col-sm-2">
+                        <label tooltipPosition="top" pTooltip="HAVING permet de filtrer en 
+                        utilisant des fonctions" for="" class="text-primary">Filtrer</label>
+                        <div>
+                          <p-inputSwitch [(ngModel)]="checkedHaving" [disabled]=buttonHavingEnabled
+                            [ngModelOptions]="{standalone: true}" (onChange)="changeToHaving($event)"></p-inputSwitch>
+                        </div>
+                      </div>
+
+                      <div class=" col-12 col-sm-2">
+                        <label tooltipPosition="top" pTooltip="permet de trier les lignes
+                         dans un résultat" for="" class="text-primary">Trier</label>
+                        <div>
+                          <p-inputSwitch [(ngModel)]="checkedOrder" [ngModelOptions]="{standalone: true}"
+                            (onChange)="changeToOrder($event)"></p-inputSwitch>
+                        </div>
+
+                      </div>
+                      <!--
+                      <div class=" col-12 col-sm-3">
+                        <label tooltipPosition="top"  pTooltip="GROUP BY, pour grouper plusieurs résultats
+                        et utiliser une fonction sur un groupe de résultat" for="" class="text-primary">Grouper</label>
+                        <div>
+                          <p-inputSwitch  [(ngModel)]="checkedGroup" [ngModelOptions]="{standalone: true}"
+                            (onChange)="changeToGroup($event)"></p-inputSwitch>
+                        </div>
+                      </div>
+                      -->
+                    </div>
+
+                    <div>
+                      <div class="row">
+                        <!--
+                        <div  >
+                          <label for="abbreviation" i18n=""> Type Filter</label>
+                          <div>
+                            <p-dropdown
+                              [options]="filterss"
+                              [(ngModel)]="condition"
+                              style="width: 100% !important"
+                              [filter]="true"
+                              name="abbreviation"
+                              (onChange)="typeFilter()"
+                              [style]="{ width: '100%' }"
+                            ></p-dropdown>
+                          </div>
+
+                        </div>
+                        -->
+                      </div>
+
+                      <div class="row">
+
+                        <div class="col-12">
+
+                          <div *ngIf="checkedWhere">
+                            <button type="button" icon="fa fa-plus" class="button-plus-add input-button" pButton
+                              (click)="addWhereExpressionTerm(whereModel)"></button>
+                            <div *ngFor="let whereModel of whereModels">
+                              <div class="row content-implementation form-input">
+                                <div class="col-12 col-sm-1">
+                                  <label for="abbreviation" i18n=""></label>
+                                  <div>
+
+                                    <button type="button" icon="fa fa-times" class="button-plus-delete input-button"
+                                      pButton (click)="deleteWhereExpressionTerm(whereModel)"></button>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 col-sm-1">
+                                  <label for="abbreviation" i18n=""></label>
+                                  <label *ngIf="whereModel.closeParanth;
+                                   else openParanth" for="abbreviation" i18n="">)
+                                    <div style="display: inline-grid; margin: 7px 10px 0px 5px">
+                                      <i class="fa fa-minus" style="margin-bottom: -9px; color: gray"
+                                        aria-hidden="true"></i><i class="fa fa-minus"
+                                        style="margin-bottom: -9px; color: gray" aria-hidden="true"></i><i
+                                        class="fa fa-minus" style="margin-bottom: -9px; color: gray"
+                                        aria-hidden="true"></i>
+                                    </div>
+                                  </label>
+
+                                  <ng-template #openParanth>
+                                    <label for="abbreviation" i18n="">(
+                                      <div style="display: inline-grid; margin: 7px 10px 0px 5px">
+                                        <i class="fa fa-minus" style="margin-bottom: -9px; color: gray"
+                                          aria-hidden="true"></i><i class="fa fa-minus"
+                                          style="margin-bottom: -9px; color: gray" aria-hidden="true"></i><i
+                                          class="fa fa-minus" style="margin-bottom: -9px; color: gray"
+                                          aria-hidden="true"></i>
+                                      </div>
+                                    </label>
+
+                                  </ng-template>
+                                  <label [hidden]="!whereModel.etou">Et/Ou</label>
+                                  <div style="display: flex">
+
+                                    <input type="checkbox" (click)="whereBrackets(whereModel)"
+                                      [(ngModel)]="whereModel.parenthesis" [ngModelOptions]="{standalone: true}"
+                                      style="display: block; width: 20px; height: 30px; margin-right: 10px"
+                                      pTooltip="Cocher pour affecter / Décocher pour enlever" />
+                                    <p-dropdown [hidden]="!whereModel.etou" placeholder="EtOu" [options]="EtOu"
+                                      [(ngModel)]="whereModel.operator1" [filter]="true" style="width: 100% !important"
+                                      name="abbreviation" [style]="{ width: '100%' }"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Table</label>
+                                  <div>
+                                    <p-dropdown [options]="filterTables" placeholder="Select a table"
+                                      [(ngModel)]="whereModel.table" (onChange)="filterWhereField(whereModel)"
+                                      style="width: 100% !important" [filter]="true" name="abbreviation"
+                                      [style]="{ width: '100%' }" optionLabel="name"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Champ</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select a Field" [options]="whereModel.tableField"
+                                      [(ngModel)]="whereModel.champ" style="width: 100% !important" [filter]="true"
+                                      name="abbreviation" optionLabel="name" [style]="{ width: '100%' }"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Opérateur</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select Operator" [options]="operators"
+                                      [(ngModel)]="whereModel.operator2" style="width: 100% !important" [filter]="true"
+                                      name="abbreviation" optionLabel="designation" [style]="{ width: '100%' }"
+                                      [ngModelOptions]="{standalone: true}" (onChange)="whereOperator(whereModel)">
+                                    </p-dropdown>
+                                  </div>
+                                </div>
+                                <div *ngIf="whereModel.oneValueCondition; else multipleValueCondition"
+                                  class="col-12 col-sm-2">
+
+                                  <!-- <div  class="col-12 col-sm-2">   -->
+                                  <label for="abbreviation" i18n=""> Valeur</label>
+                                  <div>
+                                    <input pInputText [(ngModel)]="whereModel.value"
+                                      [ngModelOptions]="{standalone: true}" class="ui-inputtext" style="width: 100%"
+                                      placeholder="Enter Value " i18n-placeholder="@@tax-creation.placeholder"
+                                      autocomplete="off" required="required" type="text" name="abbreviation" required />
+                                  </div>
+                                </div>
+                                <ng-template #multipleValueCondition>
+                                  <div class="col-12 col-sm-2">
+                                    <label for="abbreviation" i18n=""> Valeur</label>
+                                    <div>
+                                      <input pInputText [(ngModel)]="whereModel.value"
+                                        [ngModelOptions]="{standalone: true}" class="ui-inputtext" style="width: 100%"
+                                        placeholder="Ex : 1,2 " i18n-placeholder="@@tax-creation.placeholder"
+                                        autocomplete="off" required="required" type="text" name="abbreviation"
+                                        required />
+                                    </div>
+                                  </div>
+                                  <!--
+                                <div  class="col-12 col-sm-4">
+                                  <label for="abbreviation" i18n=""> Valeurs</label>
+                                  <div style="display: flex">
+                                  <div *ngFor="let  whereCondition of whereModel.values">
+                                    <input pInputText [(ngModel)]="whereCondition.value"
+                                      [ngModelOptions]="{standalone: true}" class="ui-inputtext" style="width: 100%"
+                                      placeholder="Enter Value" i18n-placeholder="@@tax-creation.placeholder"
+                                      autocomplete="off" required="required" type="text" name="abbreviation" required />
+                                  </div>
+                                  <button type="button" (click)="addWhereValueCondition(whereModel)" icon="fa fa-plus" class="button-plus input-button" pButton></button>
+                                </div>
+                                </div>
+                                 -->
+
+                                </ng-template>
+
+                                <!--
+                      <div>
+                        <p-dropdown
+                          [options]=""
+                          [(ngModel)]="whereModel.valeur"
+                          style="width: 100% !important"
+                          [filter]="true"
+                          name="abbreviation"
+                          [style]="{ width: '100%' }"
+
+                        ></p-dropdown>
+                      </div>
+                      -->
+
+                              </div><!-- row -->
+                            </div>
+                          </div> <!-- where  -->
+
+                          <!--  <div *ngIf="checkedGroup">
+                            <div *ngFor="let groupBy of groupByModels ">
+                              <div class="row content-implementation form-input">
+                                <div class="col-12 col-sm-1">
+                                  <label for="abbreviation" i18n=""></label>
+                                  <div>
+                                    <button type="button" icon="fa fa-plus" class="button-plus-add input-button"
+                                      (click)="addGroupBy(groupBy)" pButton></button>
+                                    <button type="button" icon="fa fa-times" class="button-plus-delete input-button"
+                                      pButton (click)="deleteGroupBy(groupBy)"></button>
+                                  </div>
+                                </div>
+
+
+
+
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Table</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select a Table" [options]="filterTables"
+                                      [(ngModel)]="groupBy.table" (onChange)="filterGBField(groupBy)"
+                                      style="width: 100% !important" [filter]="true" name="abbreviation"
+                                      [style]="{ width: '100%' }" optionLabel="name"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+
+
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Champ</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select a Field" [options]="groupBy.tableField"
+                                      [(ngModel)]="groupBy.champ" style="width: 100% !important" [filter]="true"
+                                      name="abbreviation" optionLabel="name"
+                                      (onChange)="addFieldGroupBy(groupBy.champ,groupBy.table)"
+                                      [style]="{ width: '100%' }" [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+
+-->
+                          <div *ngIf="checkedOrder">
+                            <button type="button" icon="fa fa-plus" class="button-plus-add input-button" pButton
+                              (click)="addOrderBy(orderBy)">
+                            </button>
+                            <div *ngFor="let orderBy of orderByModels ">
+                              <div class="row content-implementation form-input">
+                                <div class="col-12 col-sm-1">
+                                  <label for="abbreviation" i18n=""></label>
+                                  <div>
+
+                                    <button type="button" icon="fa fa-times" class="button-plus-delete input-button"
+                                      pButton (click)="deleteOrderBy(orderBy)"></button>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Table</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select a Table" [options]="filterTables"
+                                      [(ngModel)]="orderBy.table" (onChange)="filterFieldTable(orderBy)"
+                                      style="width: 100% !important" [filter]="true" name="abbreviation"
+                                      [style]="{ width: '100%' }" optionLabel="name"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Champ</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select a Field" [(ngModel)]="orderBy.champ"
+                                      [options]="orderBy.tableField" style="width: 100% !important" [filter]="true"
+                                      name="abbreviation" optionLabel="name" [style]="{ width: '100%' }"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Direction</label>
+                                  <div>
+                                    <p-dropdown placeholder="asc" [options]="directions" [(ngModel)]="orderBy.direction"
+                                      style="width: 100% !important" [filter]="true" name="abbreviation"
+                                      [ngModelOptions]="{standalone: true}" [style]="{ width: '100%' }"></p-dropdown>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+
+                          <div *ngIf="checkedHaving">
+                            <button type="button" icon="fa fa-plus" class="button-plus-add input-button"
+                              (click)="addHavingExpressionTerm(having)" pButton></button>
+                            <div *ngFor="let having of havingModels">
+                              <div class="row content-implementation form-input">
+                                <div class="col-12 col-sm-1">
+                                  <label for="abbreviation" i18n=""></label>
+                                  <div>
+
+                                    <button type="button" icon="fa fa-times" class="button-plus-delete input-button"
+                                      pButton (click)="deleteHavingExpressionTerm(having)"></button>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 col-sm-1">
+                                  <label for="abbreviation" i18n=""></label>
+                                  <label *ngIf="having.closeParanth;
+                                  else openParanthHaving" for="abbreviation" i18n="">)
+                                    <div style="display: inline-grid; margin: 7px 10px 0px 5px">
+                                      <i class="fa fa-minus" style="margin-bottom: -9px; color: gray"
+                                        aria-hidden="true"></i><i class="fa fa-minus"
+                                        style="margin-bottom: -9px; color: gray" aria-hidden="true"></i><i
+                                        class="fa fa-minus" style="margin-bottom: -9px; color: gray"
+                                        aria-hidden="true"></i>
+                                    </div>
+
+                                  </label>
+
+                                  <ng-template #openParanthHaving>
+                                    <label for="abbreviation" i18n="">(
+                                      <div style="display: inline-grid; margin: 7px 10px 0px 5px">
+                                        <i class="fa fa-minus" style="margin-bottom: -9px; color: gray"
+                                          aria-hidden="true"></i><i class="fa fa-minus"
+                                          style="margin-bottom: -9px; color: gray" aria-hidden="true"></i><i
+                                          class="fa fa-minus" style="margin-bottom: -9px; color: gray"
+                                          aria-hidden="true"></i>
+                                      </div>
+
+                                    </label>
+                                  </ng-template>
+
+                                  <label [hidden]="!having.EtOu">Et/Ou</label>
+                                  <div style="display: flex">
+                                    <input type="checkbox" (click)="havingBrackets(having)"
+                                      [(ngModel)]="having.parenthesis" [ngModelOptions]="{standalone: true}"
+                                      style="display: block; width: 22px; height: 35px; margin-right: 20px"
+                                      pTooltip="Cocher pour affecter / Décocher pour enlever" />
+                                    <p-dropdown [hidden]="!having.EtOu" placeholder="EtOu" [options]="EtOu"
+                                      [filter]="true" [(ngModel)]="having.operator1" style="width: 100% !important"
+                                      name="abbreviation" [style]="{ width: '100%' }"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Table</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select a Table" [options]="filterTables"
+                                      [(ngModel)]="having.table" style="width: 100% !important" [filter]="true"
+                                      name="abbreviation" [style]="{ width: '100%' }" optionLabel="name"
+                                      (onChange)="selectedHavingTable(having)" [ngModelOptions]="{standalone: true}">
+                                    </p-dropdown>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Function</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select function" [options]="functions"
+                                      [(ngModel)]="having.function" style="width: 100% !important" [filter]="true"
+                                      name="abbreviation" optionLabel="designation" [style]="{ width: '100%' }"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Champ</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select Field" [options]="having.tableField"
+                                      [(ngModel)]="having.champ" style="width: 100% !important" [filter]="true"
+                                      name="abbreviation" optionLabel="name" [style]="{ width: '100%' }"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+                                <div class="col-12 col-sm-1">
+                                  <label for="abbreviation" i18n=""> Opérateur</label>
+                                  <div>
+                                    <p-dropdown placeholder="Select Operator" [options]="operators"
+                                      [(ngModel)]="having.operator2" style="width: 100% !important" [filter]="true"
+                                      name="abbreviation" optionLabel="designation" [style]="{ width: '100%' }"
+                                      [ngModelOptions]="{standalone: true}"></p-dropdown>
+                                  </div>
+                                </div>
+                                <div class="col-12 col-sm-2">
+                                  <label for="abbreviation" i18n=""> Valeur</label>
+                                  <div>
+                                    <input pInputText [(ngModel)]="having.value" [ngModelOptions]="{standalone: true}"
+                                      class="ui-inputtext" style="width: 100%" placeholder="Enter Value "
+                                      i18n-placeholder="@@tax-creation.placeholder" autocomplete="off"
+                                      required="required" type="text" name="abbreviation" required />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="row justify-buton-top" style="margin-top: -22px">
+                    <div class="ml-auto p-2 bd-highlight"></div>
+                    <div class="ml-auto p-2 bd-highlight">
+                      <button (click)="displayChampsClickHandler()" pButton type="button" icon="fa fa-arrow-circle-left"
+                        label="Précédent" i18n-label=""
+                        class="ui-button-white button-toolbar btn-outline-primary"></button>
+                      <button (click)="displayResultatClickHandler()" pButton type="button"
+                        icon="fa fa-arrow-circle-right" label="Suivant" i18n-label=""
+                        class="button-toolbar btn-outline-primary"></button>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="displayResultat">
+                  <div class="row content-section-row form-input">
+                    <div class="col-12 col-sm-12">
+                      <div class="content-section">
+                        <div class="p-datatable-header ng-star-inserted" style="
+                            background: #f4f4f4;
+                            color: #333333;
+                            border: 1px solid #c8c8c8;
+                            border-width: 1px 1px 0 1px;
+                            padding: 0.857rem 1rem;
+                            font-weight: 700;
+                            margin: 0 5px;
+                          ">
+                          <div _ngcontent-acv-c199="" class="p-d-flex inserted-buton-table"
+                            style="display: flex; justify-content: flex-end">
+                            <button (click)="exportCSV()" _ngcontent-acv-c199="" type="button" pbutton="" pripple=""
+                              icon="pi pi-file-o" ptooltip="CSV" tooltipposition="bottom"
+                              class="p-mr-2 p-button p-component p-button-icon-only" ng-reflect-icon="pi pi-file-o"
+                              ng-reflect-text="CSV" ng-reflect-tooltip-position="bottom" style="
+                                background: #005b9f;
+                                color: #ffffff;
+                                border-color: #005b9f;
+                                border: 1px solid #007ad9;
+                                padding: 0.329rem 0.6rem !important;
+                                font-size: 0.76rem;
+                                transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+                                border-radius: 3px;
+                                width: 2.257rem !important;
+                                margin: 0 5px;
+                              ">
+                              <span class="p-button-icon pi pi-file-o" aria-hidden="true"></span><span
+                                aria-hidden="true" class="p-button-label"></span></button>
+                            <button (click)="exportExcel()" _ngcontent-acv-c199="" type="button" pbutton="" pripple=""
+                              icon="pi pi-file-excel" ptooltip="XLS" tooltipposition="bottom"
+                              class="p-button-success p-mr-2 p-button p-component p-button-icon-only"
+                              ng-reflect-icon="pi pi-file-excel" ng-reflect-text="XLS"
+                              ng-reflect-tooltip-position="bottom" style="
+                                background: #0c6b0d;
+                                color: #ffffff;
+                                border-color: #0c6b0d;
+                                border: 1px solid #007ad9;
+                                padding: 0.329rem 0.6rem !important;
+                                font-size: 0.76rem;
+                                transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+                                border-radius: 3px;
+                                width: 2.257rem !important;
+                                margin: 0 5px;
+                              ">
+                              <span class="p-button-icon pi pi-file-excel" aria-hidden="true"></span><span
+                                aria-hidden="true" class="p-button-label"></span></button>
+
+                            <button (click)="exportPdf()" _ngcontent-acv-c199="" type="button" pbutton="" pripple=""
+                              icon="pi pi-file-pdf" ptooltip="PDF" tooltipposition="bottom"
+                              class="p-button-warning p-mr-2 p-button p-component p-button-icon-only"
+                              ng-reflect-icon="pi pi-file-pdf" ng-reflect-text="PDF"
+                              ng-reflect-tooltip-position="bottom" style="
+                                background: #ffc107;
+                                color: #0f0dab;
+                                border-color: #ffc107;
+                                border: 1px solid #007ad9;
+                                padding: 0.329rem 0.6rem !important;
+                                font-size: 0.76rem;
+                                transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+                                border-radius: 3px;
+                                width: 2.257rem !important;
+                                margin: 0 5px;
+                              ">
+                              <span class="p-button-icon pi pi-file-pdf" aria-hidden="true"></span><span
+                                aria-hidden="true" class="p-button-label"></span></button>
+                            <button _ngcontent-acv-c199="" type="button" pbutton="" pripple="" icon="pi pi-bars"
+                              tooltipposition="bottom" ng-reflect-icon="pi pi-bars"
+                              class="p-button p-component p-button-icon-only" style="
+                                background: #005b9f;
+                                color: #ffffff;
+                                border-color: #005b9f;
+                                border: 1px solid #007ad9;
+                                padding: 0.329rem 0.6rem !important;
+                                font-size: 0.76rem;
+                                transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+                                border-radius: 3px;
+                                width: 2.257rem !important;
+                                margin: 0 5px;
+                              ">
+                              <span class="p-button-icon pi pi-bars" aria-hidden="true"></span><span aria-hidden="true"
+                                class="p-button-label"></span>
+                            </button>
+                          </div>
+                          <!--bindings={
+                           "ng-reflect-ng-template-outlet": "[object Object]"
+                           }-->
+                        </div>
+                        <div class="table-background content-implementation" i18n-header="@@employee-list.panelHeader"
+                          header="">
+                          <p-table [responsive]="true" class="header-table" [columns]="column" #tab
+                            [value]="dataRequest" dataKey="id" [autoLayout]="true"
+                            [resizableColumns]="true" editMode="row" [paginator]="true" [(rows)]="rowsNumber"
+                            [showCurrentPageReport]="true" [rowsPerPageOptions]="" pageLinks="4" [globalFilterFields]=""
+                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                            i18n-currentPageReportTemplate="@@employee-list.currentPageReportTemplate">
+                            <ng-template pTemplate="header" let-searchColumns let-columns>
+                              <tr>
+                                <th *ngFor="let col of columns" class="width-fifteen">
+                                  {{col}}
+                                </th>
+                              </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                              <tr>
+                                <td *ngFor="let col of columns">
+                                  {{rowData[col]}}
+                                </td>
+                              </tr>
+                            </ng-template>
+                          </p-table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row justify-buton-top" style="margin-top: -22px">
+                    <div class="ml-auto p-2 bd-highlight"></div>
+                    <div class="ml-auto p-2 bd-highlight">
+                      <button (click)="displayFiltersClickHandler()" pButton type="button"
+                        icon="fa fa-arrow-circle-left" label="Précédent" i18n-label=""
+                        class="ui-button-white button-toolbar btn-outline-primary"></button>
+                      <button (click)="deleteQuery()" pButton type="button" icon="fa fa-floppy-o" label="Annuler"
+                        i18n-label="" class="button-toolbar p-button-outlined p-button-danger"></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

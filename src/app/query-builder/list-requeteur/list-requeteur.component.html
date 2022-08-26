@@ -1,0 +1,60 @@
+<p-confirmDialog [style]="{width: '30vw'} " key="positionDialog" [position]="position" [baseZIndex]="10000">
+</p-confirmDialog>
+<p-messages [value]="msgs"></p-messages>
+<div class="content-section">
+  <div class="col-md-12  text-right ">
+    <button style="margin-right: 80px;margin-bottom: 10px;" type="button" icon="fa fa-plus"
+      class="button-plus-add input-button w-50 p-3" (click)="btnAddClick(-1)" pButton></button>
+  </div>
+  <div class="table-background" i18n-header="@@employee-list.panelHeader" header="">
+    <p-table [responsive]="true" class="header-table" #table [value]="dataSourcesModel" dataKey="id" editMode="row"
+      [paginator]="true" [rows]="10" [showCurrentPageReport]="true" [rowsPerPageOptions]="" pageLinks="4"
+      [globalFilterFields]="" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      i18n-currentPageReportTemplate="@@employee-list.currentPageReportTemplate">
+      <ng-template pTemplate="header" let-searchColumns>
+        <tr>
+          <th [pSortableColumn]="'abbreviation'" class="width-twentyFive">
+            <p-header i18n="">Désignation </p-header>
+          </th>
+
+          <th [pSortableColumn]="'designation'" class="width-twentyFive">
+            <p-header i18n="">Classification</p-header>
+          </th>
+          <th [pSortableColumn]="'designation'" class="width-twentyFive">
+            <p-header i18n="">Table principale</p-header>
+          </th>
+
+          <th class="" class="width-ten text-align-centre" i18n="@@taxes-list.action">Action</th>
+        </tr>
+
+
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-dataSourceM>
+        <tr>
+          <td style="background-color: inherit; border: 1px solid #c8c8c8; padding: 0.35em 0.757em">
+            {{dataSourceM.dataSource.designation}}</td>
+          <td style="background-color: inherit; border: 1px solid #c8c8c8; padding: 0.35em 0.757em">
+            {{dataSourceM.dataSource.classification.designation}}</td>
+          <td style="background-color: inherit; border: 1px solid #c8c8c8; padding: 0.35em 0.757em">
+            {{dataSourceM.mainDataSTable.table.name}}</td>
+
+          <td style="background-color: inherit; border: 1px solid #c8c8c8; padding: 0.35em 0.757em"
+            class="align-center">
+            <span (click)="btnDeleteClick(dataSourceM.dataSource.id)" class="material-icons"
+              style="margin-right: 20px; color: #d90012; margin-left: -14px; cursor: pointer">
+              <i class="pi pi-trash" style="font-size: 1.5rem"></i>
+            </span>
+            <span (click)="btnUpdateClick(dataSourceM.dataSource.id)" class="material-icons"
+              style="margin-right: 20px; color: #99bbad; margin-left: -14px; cursor: pointer">
+              <i class="pi pi-undo" style="font-size: 1.5rem"></i>
+            </span>
+            <span (click)="showResult(dataSourceM.dataSource.id,-2)" class="material-icons"
+              style="margin-right: 20px; color: #007ad9; margin-left: -14px; cursor: pointer">
+              <i class="pi pi-file" style="font-size: 1.5rem"></i>
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

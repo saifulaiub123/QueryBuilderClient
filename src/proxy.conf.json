@@ -1,0 +1,16 @@
+{
+  "/api/v1/security/*": {
+    "target": "https://localhost:5005",
+    "secure": false,
+    "router": {
+      "pgi.involys.com": "https://api.pgi.involys.com"
+    }
+  },
+  "/api/*": {
+    "target": "https://localhost:5001",
+    "secure": false,
+    "router": {
+      "pgi.involys.com": "https://api.pgi.involys.com"
+    }
+  }
+}

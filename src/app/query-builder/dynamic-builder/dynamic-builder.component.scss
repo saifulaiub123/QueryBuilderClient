@@ -1,0 +1,13 @@
+.ng-valid[required], .ng-valid.required  {
+  border-left: 5px solid rgba(32, 77, 32, 0.623);
+}
+.ng-invalid:not(form)  {
+  border-left: 5px solid rgb(148, 27, 27);
+}
+
+.ui-fluid .ui-dropdown, .ui-fluid p-dropdown {
+  border: 1px solid #a6a6a6 !important;
+}
+body .ui-state-disabled, body .ui-widget:disabled{
+  opacity: 0.6 !important;
+}

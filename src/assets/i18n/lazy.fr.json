@@ -1,0 +1,7 @@
+{
+  "locale": "fr",
+  "translations": {
+    "lazyhome": "Chargement asynchrone fonctionne !",
+    "buttonlabel":  "Retour"
+  }
+}

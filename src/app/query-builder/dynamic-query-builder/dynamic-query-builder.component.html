@@ -1,0 +1,279 @@
+<!-- <div class="col-12 col-sm-4">
+  <label for="abbreviation" i18n="">Classification</label>
+  <div style="display: flex">
+    <p-dropdown placeholder="Select Classification" [options]="classifications"
+      [(ngModel)]="dataSource.classification" [filter]="true" name="abbreviation"
+      #Classification="ngModel" required="required" [style]="{ width: '100%' }"
+      optionLabel="designation" [ngModelOptions]="{standalone: true}"
+      (onChange)="selectedDataSource()"></p-dropdown>
+    <button type="button" icon="fa fa-plus" class="button-plus input-button" pButton></button>
+  </div>
+  <div [hidden]="Designation.valid || Designation.pristine" class="alert alert-danger">
+    Please enter classification
+  </div>
+</div> -->
+
+<!-- <div class="col-12 col-sm-4">
+  <label for="abbreviation" i18n="">Table principale</label>
+  <p-dropdown placeholder="Select Main Table" [options]="tables" [(ngModel)]="selectedTable"
+    [filter]="true" name="abbreviation" [style]="{ width: '100%' }" optionLabel="name"
+    #tableP="ngModel" required="required" (onChange)="changeTablePrincipale(selectedTable)"
+    [ngModelOptions]="{standalone: true}">
+  </p-dropdown>
+  <div [hidden]="Designation.valid || Designation.pristine" class="alert alert-danger">
+    Please enter main table
+  </div>
+</div> -->
+<!--
+<div class="col-12 col-sm-4">
+  <label for="abbreviation" i18n="">Table associés </label>
+  <p-multiSelect [options]="aTables" [(ngModel)]="joinedTables" defaultLabel="Joined tables"
+    display="chip" optionLabel="name" [ngModelOptions]="{standalone: true}"
+    (onChange)="changeTableAssociated()">
+  </p-multiSelect>
+</div>
+-->
+
+<!-- </div>  -->
+<h2 style="text-align: center;">Dynamic Query Builder</h2>
+<br><br>
+<div class="container-fluid">
+  <h3>Entity</h3>
+  <div class="row">
+    <div class="col-sm-3 col-md-6 col-lg-4">
+      <p-dropdown
+          [options]="tableList"
+          [(ngModel)]="selectedParentTable"
+          [filter]="true"
+          [style]="{ width: '100%' }"
+          placeholder="Select Entity"
+          optionLabel="name"
+          [showClear]="true"
+          (onChange)="onParentTableChange($event)"
+          >
+      </p-dropdown>
+    </div>
+    <div class="col-sm-3 col-md-6 col-lg-4" >
+      <p-multiSelect
+            [options]="parentTableColumnList"
+            [(ngModel)]="selectedParentTableColumns"
+            defaultLabel="Select Attributes"
+            optionLabel="name"
+            [style]="{ width: '100%' }"
+            display="chip"
+	          >
+        </p-multiSelect>
+    </div>
+  </div>
+
+
+  <br><br>
+
+
+  <h3>Objects</h3>
+  <!-- <div class="row">
+    <div class="col-sm-3 col-md-3 col-lg-3">
+      <p-dropdown
+          [options]="tableList"
+          [(ngModel)]="selectedJoinTable"
+          [filter]="true"
+          placeholder="Select Join Table"
+          optionLabel="name"
+          [showClear]="true">
+      </p-dropdown>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3" >
+      <p-dropdown
+          [options]="tableColumnList"
+          [(ngModel)]="selectedJoinTableColumns"
+          [filter]="true"
+          placeholder="Select Join Table Reference Column"
+          optionLabel="name"
+          [showClear]="true">
+      </p-dropdown>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3" >
+      <p-dropdown
+          [options]="tableList"
+          [(ngModel)]="selectedJoinParentTable"
+          [filter]="true"
+          placeholder="Select Parent Table"
+          optionLabel="name"
+          [showClear]="true">
+      </p-dropdown>
+    </div>
+
+    <div class="col-sm-3 col-md-3 col-lg-3" >
+      <p-dropdown
+          [options]="tableColumnList"
+          [(ngModel)]="selectedJoinParentTableColumn"
+          [filter]="true"
+          placeholder="Select Parent Table Reference Column"
+          optionLabel="name"
+          [showClear]="true">
+      </p-dropdown>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3" >
+      <p-dropdown
+          [options]="tableColumnList"
+          [(ngModel)]="joinTableColumnsToShow"
+          [filter]="true"
+          placeholder="Select Column to Show"
+          optionLabel="name"
+          [showClear]="true">
+      </p-dropdown>
+    </div>
+  </div> -->
+
+</div>
+
+
+<table style="width: 100%; border-spacing: 30px;">
+  <tr>
+    <td style="width: 15%;">
+
+        <p-dropdown
+            [options]="tableList"
+            [(ngModel)]="selectedJoinTable"
+            [filter]="true"
+            [style]="{ width: '80%' }"
+            placeholder="Select Join Entity"
+            optionLabel="name"
+            [showClear]="true"
+            (onChange)="onJoinTableChange($event)"
+            >
+        </p-dropdown>
+
+    </td>
+    <td style="width: 15%;">
+
+        <p-dropdown
+            [options]="joinTableReferenceColumnList"
+            [(ngModel)]="selectedJoinTableColumns"
+            [filter]="true"
+            [style]="{ width: '80%' }"
+            placeholder="Select Join Entity Reference Attribute"
+            optionLabel="name"
+            [showClear]="true">
+        </p-dropdown>
+
+    </td>
+    <td style="width: 15%;">
+
+        <p-dropdown
+            [options]="tableList"
+            [(ngModel)]="selectedJoinParentTable"
+            [filter]="true"
+            [style]="{ width: '100%' }"
+            placeholder="Select Parent Entity"
+            optionLabel="name"
+            [showClear]="true"
+            (onChange)="onJoinParentTableChange($event)"
+            >
+        </p-dropdown>
+
+    </td>
+    <td style="width: 15%;">
+
+        <p-dropdown
+            [options]="joinParentTableColumnList"
+            [(ngModel)]="selectedJoinParentTableReferenceColumn"
+            [filter]="true"
+            [style]="{ width: '100%' }"
+            placeholder="Select Parent Entity Reference Attribute"
+            optionLabel="name"
+            [showClear]="true">
+        </p-dropdown>
+
+    </td>
+    <td style="width: 15%;">
+
+      <p-multiSelect
+          [options]="joinTableColumnToShowList"
+          [(ngModel)]="joinTableColumnsToShow"
+          [style]="{ width: '100%' }"
+          defaultLabel="Select Attreibutes to Show"
+          optionLabel="name"
+          display="chip"
+      >
+      </p-multiSelect>
+
+    </td>
+  </tr>
+</table>
+
+
+
+
+
+<h3>Condition</h3>
+<table style="width: 100%; border-spacing: 30px;">
+  <tr>
+    <td style="width: 15%;">
+
+        <p-dropdown
+            [options]="tableList"
+            [(ngModel)]="selectedConditionTable"
+            [filter]="true"
+            [style]="{ width: '80%' }"
+            placeholder="Condition Entity"
+            optionLabel="name"
+            [showClear]="true"
+            (onChange)="onConditionTableChange($event)"
+            >
+        </p-dropdown>
+
+    </td>
+    <td style="width: 15%;">
+
+        <p-dropdown
+            [options]="conditionTableColumnList"
+            [(ngModel)]="selectedConditionColumn"
+            [filter]="true"
+            [style]="{ width: '80%' }"
+            placeholder="Condition Attribute"
+            optionLabel="name"
+            [showClear]="true">
+        </p-dropdown>
+
+    </td>
+    <td style="width: 15%;">
+
+        <p-dropdown
+            [options]="conditionTypeList"
+            [(ngModel)]="selectedConditonType"
+            [filter]="true"
+            [style]="{ width: '100%' }"
+            placeholder="Select Condtion Type"
+            optionLabel="name"
+            [showClear]="true">
+        </p-dropdown>
+
+    </td>
+    <td style="width: 15%;">
+      <input type="text" style="width: 100%;" placeholder="Condtion Value"  pInputText [(ngModel)]="condtionValue">
+    </td>
+    <td style="width: 15%;">
+
+      <p-multiSelect
+          [options]="valueTypeList"
+          [(ngModel)]="selectedValueType"
+          [style]="{ width: '100%' }"
+          defaultLabel="Select Value Type"
+          optionLabel="name"
+          display="chip"
+      >
+      </p-multiSelect>
+
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <button type="button" class="btn btn-primary" style="margin-right: 5px;">Generate PDF</button>
+      <button type="button" class="btn btn-success" style="margin-right: 5px;">Generate Word</button>
+      <button type="button" class="btn btn-info" style="margin-right: 5px;">Generate Excel</button>
+    </td>
+  </tr>
+</table>
+
+
