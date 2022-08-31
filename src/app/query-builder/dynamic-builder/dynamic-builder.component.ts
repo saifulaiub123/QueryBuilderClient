@@ -3169,7 +3169,7 @@ export class DynamicBuilderComponent implements OnInit {
     dqc.conditionColumn = this.selectedConditionColumn.name;
     dqc.condition = this.selectedConditonType.name;
     dqc.value = this.condtionValue;
-    dqc.valueType = this.selectedValueType.name;
+    //dqc.valueType = this.selectedValueType.name;
 
     dqcArr.push(dqc);
 
