@@ -42,6 +42,7 @@ import { DynamicQueryModel } from 'src/app/models/dynamicQueryModel';
 import { DynamicLinqService } from 'src/app/services/dynamicLinqService';
 import { DynamicCondition } from 'src/app/models/dynamicCondition';
 import { JoinTableModel } from 'src/app/models/joinTableModel';
+import { analyzeAndValidateNgModules } from '@angular/compiler';
 @Component({
   selector: 'app-dynamic-builder',
   templateUrl: './dynamic-builder.component.html',
@@ -87,6 +88,9 @@ export class DynamicBuilderComponent implements OnInit {
   childTableName : string;
   childTableColumnList: any;
   selectedChildTableColumnList: any;
+
+
+  cols:any[] =[];
 
 
 
@@ -1258,19 +1262,9 @@ export class DynamicBuilderComponent implements OnInit {
   }
 
 
-  // async saveAllDStable(): Promise<void> {
-  //   for (const dataSourceTable of this.dataSourceTables) {
-  //     dataSourceTable.dataSource = this.dataSource;
-  //     //this.dataSourceTable = await this.saveDataSourceTable(dataSourceTable);
-  //     if (dataSourceTable.id == undefined) {
-  //       this.dataSourceTable = await this.saveDataSourceTable(dataSourceTable);
-  //     } else {
-  //       await this.dataSourceTableService.UpdateDataSourceTable(dataSourceTable).toPromise();
-  //     }
-  //   }
-  // }
 
   async displayResultatClickHandler() {
+    this.cols = [];
     this.displayResultat = true;
     this.displayJointures = false;
     this.displayIdentification = false;
@@ -1284,7 +1278,7 @@ export class DynamicBuilderComponent implements OnInit {
     }
 
     for(let item of this.selectedChildTableColumnList){
-      if(!this.tableList.some(obj => obj.name === item.name))
+      // if(!this.tableList.some(obj => obj.name === item.name))
           childOutputColumns.push(item.name);
     }
 
@@ -1297,13 +1291,17 @@ export class DynamicBuilderComponent implements OnInit {
     let dqcArr : DynamicCondition[] = [];
     let dqc = new DynamicCondition();
 
-    joinTable.tableName = this.childTableName;
-    joinTable.columns = childOutputColumns;
-    joinTable.parentTableName = this.selectedParentTable.name;
-    joinTable.parentColumnOn = this.childTableName;
-    joinTable.currentColumnOn = "Id";
+    if(childOutputColumns.length > 0)
+    {
+      joinTable.tableName = this.childTableName;
+      joinTable.columns = childOutputColumns;
+      joinTable.parentTableName = this.selectedParentTable.name;
+      joinTable.parentColumnOn = this.childTableName;
+      joinTable.currentColumnOn = "Id";
 
-    joinTableList.push(joinTable);
+      joinTableList.push(joinTable);
+    }
+
 
 
     dqc.conditionTable = this.selectedConditionTable.name;
@@ -1323,6 +1321,22 @@ export class DynamicBuilderComponent implements OnInit {
     this.dynamicLinqService.getDynamicLinqData(dq).subscribe((data: any) => {
       this.dynamicData = data.data;
 
+      if(this.dynamicData.length > 0)
+      {
+        for (const [key, value] of Object.entries(this.dynamicData[0])) {
+          this.cols.push({ field : key, header: key })
+        }
+      //   this.cols = [
+      //     { field: 'Quantity', header: 'Quantity' },
+      //     { field: 'Id', header: 'Id' },
+      //     { field: 'Name', header: 'Name' },
+      //     { field: 'IsActive', header: 'IsActive' }
+      // ];
+      }
+
+
+
+
       this.column = [];
       for (const key in this.dynamicData[0]) {
         if (!this.column.includes(key)) {
@@ -1330,165 +1344,6 @@ export class DynamicBuilderComponent implements OnInit {
         }
       }
     });
-
-
-
-
-
-    // if (this.selectedItemFields.length == 0) {
-    //   this.displayIdentification = false;
-    //   this.displayJointures = false;
-    //   this.displayChamps = true;
-    //   this.displayFilters = false;
-    //   this.displayResultat = false;
-    //   this.msags = [{ severity: 'warn', summary: 'Note:', detail: 'You have to select fields!' }];
-    // } else if ((Object.keys(this.joinModel).length != 2) && this.joinedTables.length == 0 && this.joinn == false) {
-    //   this.displayIdentification = false;
-    //   this.displayJointures = true;
-    //   this.displayChamps = false;
-    //   this.displayFilters = false;
-    //   this.displayResultat = false;
-    //   this.msags = [{ severity: 'warn', summary: 'Note:', detail: 'No joined table is selected to add join filter !' }];
-
-    // } else if (this.joinedTables.length != 0 && (Object.keys(this.joinModel).length == 2) && this.joinn == false) {
-    //   this.displayIdentification = false;
-    //   this.displayJointures = true;
-    //   this.displayChamps = false;
-    //   this.displayFilters = false;
-    //   this.displayResultat = false;
-    //   this.msags = [{ severity: 'warn', summary: 'Note:', detail: 'Join table selected you have to add join filter !' }];
-    // }
-    // else {
-    //   this.displayIdentification = false;
-    //   this.displayJointures = false;
-    //   this.displayChamps = false;
-    //   this.displayFilters = false;
-    //   this.displayResultat = true;
-
-    //   /*
-    //   if (this.idd != -1) {
-    //     await this.dataSourceService.DeleteDataSource(this.dataSource.id).toPromise();
-
-    //   }
-    //   */
-
-    //   /**
-    //    * get selected fields in the query
-    //    */
-    //   await this.getSelectedDataSourceField();
-
-    //   /**
-    //    * save selected fields with the datasource
-    //    */
-    //   this.dataSource.dataSourceFields = this.dataSourceFields;
-
-    //   //this.dataSource = await this.saveDataSource(this.dataSource);
-
-    //   /**
-    //    * save or update dataSource depending on user choice
-    //    */
-    //   if (this.dataSource.id == undefined) {
-    //     this.dataSource = await this.saveDataSource(this.dataSource);
-    //   } else {
-    //     await this.dataSourceService.UpdateDataSource(this.dataSource).toPromise();
-    //   }
-
-    //   /**
-    //    * call function to save main table of query
-    //    */
-    //   await this.saveAllDStable();
-
-    //   /**
-    //    * build sql where expression if we have where in our query
-    //    */
-    //   if (Object.keys(this.whereModel).length != 7 || this.where == true) {
-    //     this.whereExpressionTerm = await this.addWhere();
-    //   }
-
-    //   /**
-    //    * build sql having expression if we have having conditions in our query
-    //    */
-    //   if (Object.keys(this.havingModel).length != 4 || this.having == true) {
-    //     this.havingExpressionTerm = await this.addHaving();
-    //   }
-
-    //   /**
-    //    * build sql order by expression if we have order by filters in the query
-    //    */
-    //   if (Object.keys(this.orderByModel).length != 1 || this.orderB == true) {
-    //     await this.addOrderByCondition();
-    //   }
-
-    //   /**
-    //    * build sql join expression  if we have join filter in our query
-    //    */
-    //   if (Object.keys(this.joinModel).length != 2 || this.joinn == true) {
-    //     this.joinExpressionTerm = await this.addJoinExpressionTerm();
-    //   }
-
-    //   // create sql query with selected Fields
-    //   var sqlQuery = await this.fieldsToSelect();
-    //   console.log(sqlQuery);
-
-    //   /**
-    //    * To add join condition to sql query if it is  selected by user
-    //    */
-    //   if (this.joinExpressionTerms.length != 0) {
-    //     sqlQuery = sqlQuery.slice(0, -1);
-    //     sqlQuery = this.addJoinToSqlQuery(sqlQuery);
-    //     this.joinExpressionTerms = [];
-    //   }
-
-    //   //To add "DISTINCT" to the sql query if it is selected by user
-    //   if (this.distinctValue == true) {
-    //     sqlQuery = this.addDistinctToSqlQuery(sqlQuery);
-    //     this.dataSource.distinct = true;
-    //   }
-
-    //   //To add where filter to the sql query if it is selected by user
-    //   if (!(Object.keys(this.whereExpressionTerm).length === 0)) {
-    //     sqlQuery = await this.addWhereToSqlQuery(sqlQuery);
-    //     this.whereExpressionTerm = new ExpressionTerm();
-    //     //this.dataSource.whereCondition = this.whereExpressionTerm;
-    //   }
-
-    //   //To add groupe by  filter to the sql query if it is selected by user
-    //   if (!(this.dataSourceFieldsGroupBY.length === 0)) {
-    //     sqlQuery = sqlQuery.slice(0, -1);
-    //     sqlQuery = this.addGroupByToSqlQuery(sqlQuery);
-    //     this.dataSourceFieldsGroupBY = [];
-    //   }
-
-    //   //To add having filter to the sql query if it is selected by user
-    //   if (!(Object.keys(this.havingSqlExpressionTerm).length === 0)) {
-    //     sqlQuery = await this.addHavingToSqlQuery(sqlQuery);
-    //     // this.dataSource.havingCondition = this.havingSqlExpressionTerm;
-    //     this.havingSqlExpressionTerm = new ExpressionTerm();
-    //   }
-
-    //   // to know if order by is created by user and add it to sql query
-    //   if (!(this.orderBys.length === 0)) {
-    //     sqlQuery = sqlQuery.slice(0, -1);
-    //     sqlQuery = this.addOrderByToSqlQuery(sqlQuery);
-    //     this.orderBys = [];
-    //   }
-
-    //   // get data based on sql query created by user
-    //   console.log(sqlQuery);
-    //   this.GetDataRequest(sqlQuery);
-
-    //   console.log(this.dataRequest);
-    //   //add created query to the dataSource
-    //   this.dataSource.sqlText = sqlQuery;
-
-    //   //this.dataSource.DataSourceFields=this.dataSourceFields;
-    //   if (this.dataSource.id == undefined) {
-    //     this.dataSource = await this.saveDataSource(this.dataSource);
-    //   } else {
-    //     await this.dataSourceService.UpdateDataSource(this.dataSource).toPromise();
-    //   }
-    //   this.idd = 0;
-    // }
   }
 
 }
