@@ -41,6 +41,7 @@ import { ColumnPdfWidth } from 'src/app/models/columnPdfWidth';
 import { DynamicQueryModel } from 'src/app/models/dynamicQueryModel';
 import { DynamicLinqService } from 'src/app/services/dynamicLinqService';
 import { DynamicCondition } from 'src/app/models/dynamicCondition';
+import { JoinTableModel } from 'src/app/models/joinTableModel';
 @Component({
   selector: 'app-dynamic-builder',
   templateUrl: './dynamic-builder.component.html',
@@ -83,6 +84,7 @@ export class DynamicBuilderComponent implements OnInit {
   dynamicData: any[] = [];
 
   isSelectedChildTable : boolean = false;
+  childTableName : string;
   childTableColumnList: any;
   selectedChildTableColumnList: any;
 
@@ -372,63 +374,14 @@ export class DynamicBuilderComponent implements OnInit {
     private dynamicLinqService: DynamicLinqService,
     // private dialogService: DialogService,
     private messageService: MessageService
-  ) {
-    this.EtOu = [
-      { label: 'And', value: 'And' },
-      { label: 'Or', value: 'Or' },
-    ];
-
-    this.directions = [
-      { label: 'desc', value: 'Desc' },
-      { label: 'asc', value: 'Asc' },
-    ];
-
-    this.ecrans = [
-      { label: 'ecran1', value: 'Ecran 1' },
-      { label: 'ecran2', value: 'Ecran 2' },
-    ];
-    this.headerColorExcels = [
-      { label: 'Red', value: 'FF0000' },
-      { label: 'Blue', value: '0000FF' },
-      { label: 'Green', value: '00FF00' },
-      { label: 'Yellow', value: 'FFFF00' },
-      { label: 'White', value: 'FFFFFF' },
-
-    ];
-    this.pagePositions = [
-      { label: 'Bottom-Left', value: 'left' },
-      { label: 'Bottom-Middle', value: 'middle' },
-    ];
-    this.datePositions = [
-      { label: 'Bottom-Right', value: 'bottomright' },
-      { label: 'Top-Right', value: 'topright' },
-    ];
-
-    this.pageNumberStyles = [
-      { label: 'page x of y', value: 'of' },
-      { label: 'page | x', value: 'page' },
-      { label: 'x / y', value: '/' },
-      { label: 'x', value: 'x' },
-      { label: 'pg.x', value: 'pg' },
-
-    ];
-    this.dateFormats = [
-      { label: 'dd/mm/yyyy', value: 'dd/mm' },
-      { label: 'mm/dd/yyyy', value: 'mm/dd' },
-      { label: 'dd-mm-yyyy', value: 'dd-mm' },
-      { label: 'mm-dd-yyyy', value: 'mm-dd' },
-    ];
-  }
+  ) {}
 
   //get all tables
   async LoadALL(): Promise<Table[]> {
     return (this.tables = await this.tableService.getTables().toPromise());
   }
 
-  /**
-   * get data from database depending en sqlquery created by user
-   * @param sql
-   */
+
   GetDataRequest(sql: string) {
     this.dataSourceService.getDataRequest(sql).subscribe((data: any) => {
       this.dataRequest = data;
@@ -442,323 +395,8 @@ export class DynamicBuilderComponent implements OnInit {
     });
   }
 
-  /**
-   *  get list of classifications in the database
-   */
-  GetALLClassification() {
-    this.dataSourceService.getAllClassifications().subscribe((data: any) => {
-      this.classifications = data;
-    });
-  }
 
 
-  /**
-   *  function to get all where and having filters of a query and display them to user
-   * @param id
-   */
-  async GetWhereHavingExpressionTerm(id: number): Promise<void> {
-    let joinExpressionTerms: ExpressionTerm[] = [];
-    joinExpressionTerms = await this.expressionTermService.getJoinsWhereHavingExpressionTerm(id).toPromise();
-    let havingModels: HavingModel[] = [];
-    let whereModels: WhereModel[] = [];
-    for (const expressionT of joinExpressionTerms) {
-      let whereM = new WhereModel();
-      let havingM = new HavingModel();
-
-      /**
-       * where filters
-       */
-      if (expressionT.expressionType == this.constants.whereFilter) {
-        this.where = true;
-        if (expressionT.text == 'And' || expressionT.text == 'Or') {
-          this.whereModels[this.whereModels.length - 1].operator1 = expressionT.text;
-          this.whereModels[this.whereModels.length - 1].OperatorID = expressionT.id;
-        } else {
-          console.log(expressionT.text);
-          whereM.update = true;
-          whereM.whereE = expressionT;
-          whereM.whereE.firstTerm = expressionT.firstTerm;
-          whereM.whereE.secondTerm = expressionT.secondTerm;
-          whereM.champ = expressionT.firstTerm.tableField;
-          if (expressionT.operator.designation == "in") {
-            var count = (expressionT.text.match(/\(/g) || []).length;
-            var count1 = (expressionT.text.match(/\)/g) || []).length;
-            if (count >= 2 || count1 >= 2) {
-              whereM.parenthesis = true;
-            }
-            if (count1 >= 2) {
-              whereM.closeParanth = true;
-            }
-          }
-          else {
-            if (expressionT.text.includes('(')) {
-              whereM.parenthesis = true;
-            }
-            if (expressionT.text.includes(')')) {
-              whereM.parenthesis = true;
-              whereM.closeParanth = true;
-            }
-          }
-          if (expressionT.secondTerm.text.includes('and')) {
-            var conditionValues = [];
-            var conditionValue = "";
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace(/'/g, ' ');
-            conditionValues = expressionT.secondTerm.text.split('and');
-            console.log(conditionValue);
-            for (var [key, value] of conditionValues.entries()) {
-              console.log(value);
-              conditionValue += value;
-              if (key != conditionValues.length - 1) {
-                conditionValue += ',';
-              }
-            }
-
-            /**
-             * replace space in where value
-             */
-            whereM.value = conditionValue.replace(/\s/g, "");
-            console.log(whereM.value);
-          } else if (expressionT.secondTerm.text.includes(',')) {
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace('(', ' ');
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace(')', ' ');
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace(/'/g, ' ');
-            console.log(expressionT.secondTerm.text);
-
-            /**
-            * replace space in where value
-            */
-            whereM.value = expressionT.secondTerm.text.replace(/\s/g, "");
-          } else {
-            whereM.value = expressionT.secondTerm.text;
-          }
-          if (expressionT.secondTerm.text.includes('and')) {
-            whereM.oneValueCondition = false;
-          } else if (expressionT.secondTerm.text.includes(',')) {
-            whereM.oneValueCondition = false;
-          }
-          /*
-          if (expressionT.secondTerm.text.includes('and')) {
-            var conditionValue = [];
-            var values: Condition[] = [];
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace(/'/g, ' ');
-            conditionValue = expressionT.secondTerm.text.split('and');
-            console.log(conditionValue);
-            for (var value of conditionValue) {
-              console.log(value);
-              var condition = new Condition();
-              condition.value = value;
-              condition.value=condition.value.trim();
-              values.push(condition);
-            }
-            whereM.oneValueCondition = false;
-            whereM.values = values;
-          } else if (expressionT.secondTerm.text.includes(',')) {
-            var conditionValue = [];
-            var values: Condition[] = [];
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace('(', ' ');
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace(')', ' ');
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace(/'/g, ' ');
-            console.log(expressionT.secondTerm.text);
-            conditionValue = expressionT.secondTerm.text.split(',');
-
-            for (const value of conditionValue) {
-              console.log(value);
-              var condition = new Condition();
-              condition.value = value;
-              condition.value=condition.value.trim();
-              values.push(condition);
-            }
-            whereM.oneValueCondition = false;
-            whereM.values = values;
-
-          } else {
-            whereM.value = expressionT.secondTerm.text;
-
-          }
-*/
-          whereM.operator2 = expressionT.operator;
-          whereM.table = expressionT.firstTerm.tableField.table;
-          whereM.tableField = await this.GetTableFields(expressionT.firstTerm.tableField.table.id);
-          if (whereModels.length >= 1) {
-            whereM.etou = true;
-          }
-          await whereModels.push(whereM);
-        }
-
-        /**
-         * having filters
-         */
-      } else if (expressionT.expressionType == this.constants.havingFilter) {
-        this.having = true;
-        if (expressionT.text == 'And' || expressionT.text == 'Or') {
-          this.havingModels[this.havingModels.length - 1].operator1 = expressionT.text;
-          this.havingModels[this.havingModels.length - 1].OperatorID = expressionT.id;
-        } else {
-          havingM.update = true;
-          havingM.havingE = expressionT;
-          havingM.havingE.firstTerm = expressionT.firstTerm;
-          havingM.havingE.secondTerm = expressionT.secondTerm;
-          havingM.havingE.firstTerm.fieldsDataSource = expressionT.firstTerm.fieldsDataSource;
-          havingM.champ = expressionT.firstTerm.fieldsDataSource.tableField;
-
-          /**
-           * close or open brockets depending on operators in the condition
-           */
-          if (expressionT.operator.designation == "in") {
-            const count = (expressionT.text.match(/\(/g) || []).length;
-            let count1 = (expressionT.text.match(/\)/g) || []).length;
-            console.log(count);
-            console.log(count1);
-            if (count >= 3 || count1 >= 3) {
-              havingM.parenthesis = true;
-            }
-            if (count1 >= 3) {
-              havingM.closeParanth = true;
-            }
-
-          } else {
-            if ((expressionT.text.match(/\(/g) || []).length >= 2) {
-              havingM.parenthesis = true;
-            }
-
-            if ((expressionT.text.match(/\)/g) || []).length >= 2) {
-              havingM.parenthesis = true;
-              havingM.closeParanth = true;
-            }
-          }
-
-          //havingM.value = expressionT.secondTerm.text;
-          if (expressionT.secondTerm.text.includes('and')) {
-            let conditionValues = [];
-            let conditionValue = "";
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace(/'/g, ' ');
-            conditionValues = expressionT.secondTerm.text.split('and');
-            console.log(conditionValue);
-            for (var [key, value] of conditionValues.entries()) {
-              console.log(value);
-              conditionValue += value;
-              conditionValue = conditionValue.trim();
-              if (key != conditionValues.length - 1) {
-                conditionValue += ',';
-              }
-            }
-            havingM.value = conditionValue.replace(/\s/g, "");
-            console.log(havingM.value);
-          } else if (expressionT.secondTerm.text.includes(',')) {
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace('(', ' ');
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace(')', ' ');
-            expressionT.secondTerm.text = expressionT.secondTerm.text.replace(/'/g, ' ');
-            console.log(expressionT.secondTerm.text);
-            havingM.value = expressionT.secondTerm.text.replace(/\s/g, "");
-          } else {
-            havingM.value = expressionT.secondTerm.text;
-          }
-          havingM.operator2 = expressionT.operator;
-          havingM.function = expressionT.firstTerm.fieldsDataSource.function;
-          havingM.table = expressionT.firstTerm.fieldsDataSource.tableField.table;
-          havingM.tableField = await this.GetTableFields(expressionT.firstTerm.fieldsDataSource.tableField.table.id);
-          if (havingModels.length >= 1) {
-            havingM.EtOu = true;
-          }
-          await havingModels.push(havingM);
-        }
-      }
-      if (this.where == true) {
-        this.whereModels = whereModels;
-      }
-      if (this.having == true) {
-        this.havingModels = havingModels;
-      }
-    }
-  }
-
-  /**
-   * function to get all table of a query and display join relation between those table
-   * @param id
-   */
-  async GetDataSourceTables(id: number): Promise<void> {
-    this.dataSourceTables = await this.dataSourceTableService.getDataSourceTables(id).toPromise();
-    if (this.dataSourceTables.length != 1) {
-      var joinModels: JoinModel[] = [];
-    }
-    for (const dataSTables of this.dataSourceTables) {
-      if (dataSTables.mainEntity == true) {
-        this.selectedTable = dataSTables.table;
-        this.dataSourceTable = dataSTables;
-        await this.GetWhereHavingExpressionTerm(dataSTables.id);
-      } else {
-        this.joinn = true;
-        this.joinedTables.push(dataSTables.table);
-        let joinM = new JoinModel();
-        let expressionT = new ExpressionTerm();
-        /**
-         * get joins filter of the query
-         */
-        expressionT = await this.expressionTermService.getJoinsExpressionTerm(dataSTables.id).toPromise();
-        console.log(expressionT);
-        joinM.joinE = expressionT;
-        joinM.joinE.firstTerm = expressionT.firstTerm;
-        joinM.joinE.secondTerm = expressionT.secondTerm;
-        joinM.joinE.dataSourceTable = new DataSourceTable();
-        joinM.joinE.dataSourceTable = dataSTables;
-        joinM.update = true;
-        joinM.tableField = await this.GetTableFields(expressionT.firstTerm.tableField.table.id);
-        joinM.tableField1 = await this.GetTableFields(expressionT.secondTerm.tableField.table.id);
-        joinM.champ1 = expressionT.firstTerm.tableField;
-        joinM.champ2 = expressionT.secondTerm.tableField;
-        joinM.operator2 = expressionT.operator;
-        joinM.type = dataSTables.join;
-        joinM.tablePrincipale = expressionT.firstTerm.tableField.table;
-        joinM.joinedTable = expressionT.secondTerm.tableField.table;
-        joinModels.push(joinM);
-      }
-    }
-    if (this.joinn == true) {
-      this.joinModels = joinModels;
-      //this.aTables =this.tables;
-    } else {
-      this.aTables = this.tables;
-    }
-    this.aTables = [];
-    for (const tabl of this.tables) {
-      if (this.selectedTable.id != tabl.id) {
-        //join tables
-        this.aTables.push(tabl);
-      }
-    }
-  }
-
-  /**
-   * function to get all filter order by of a query to display them to user
-   * @param id
-   */
-  async GetDataSourceOrderBys(id: number): Promise<void> {
-    let orderBys: OrderBy[] = [];
-    orderBys = await this.dataSourceService.getDataSourceOrderBys(id).toPromise();
-    if (orderBys.length != 0) {
-      this.orderB = true;
-      this.orderByModels = [];
-      for (const orderBy of orderBys) {
-        var orderByM = new OrderByModel();
-        orderByM.table = orderBy.tableField.table;
-        orderByM.tableField = await this.GetTableFields(orderBy.tableField.table.id);
-        orderByM.champ = orderBy.tableField;
-        orderByM.orderBy = orderBy;
-        if (orderBy.orderDirection == 1) {
-          orderByM.direction = 'Asc';
-        } else {
-          orderByM.direction = 'Desc';
-        }
-        this.orderByModels.push(orderByM);
-      }
-    }
-  }
-
-  /**
-   *  function to get dataSource which means information about query including
-   *  classification and selected fileds in that query
-   * @param id
-   */
   async GetDataSource(id: number): Promise<void> {
     this.dataSource = await this.dataSourceService.getDataSource(id).toPromise();
     if (this.dataSource.distinct == true) {
@@ -766,20 +404,12 @@ export class DynamicBuilderComponent implements OnInit {
     }
   }
 
-  /**
-   *
-   * @param id to get fields of each table
-   * @returns
-   */
+
   async GetTableFields(id: number): Promise<TableFields[]> {
     return (this.principaleTableFields = await this.tableService.getTableFields(id).toPromise());
   }
 
-  /**
-  *
-  * @param id to get primary field of a table
-  * @returns
-  */
+
   async GetTablePrimaryFields(id: number): Promise<TableFields> {
     return (await this.tableService.getTablePrimaryFields(id).toPromise());
   }
@@ -793,389 +423,7 @@ export class DynamicBuilderComponent implements OnInit {
     return (this.principaleTableFields = await this.tableService.getTableForeignFields(id).toPromise());
   }
 
-  /**
-   * get all operators
-   */
-  GetOperators() {
-    this.expressionTermService.getOperator().subscribe((data: Ooperator[]) => {
-      this.operators = data;
-    });
-  }
 
-  /**
-   * to save selected function of each field
-   * @param item
-   */
-  selectFunction(dsFfield, functionT) {
-    dsFfield.function = functionT;
-    /**
-     * add group by fiter depending on selected function
-     */
-    console.log(this.selectedItemFields);
-    var functionExist: boolean = false;
-    for (const item of this.selectedItemFields) {
-      if (item.data.function == null) {
-        item.data.groupBy = true;
-      } else {
-        functionExist = true;
-        this.buttonHavingEnabled = false;
-        item.data.groupBy = false;
-      }
-    }
-    if (functionExist == false) {
-      for (const item of this.selectedItemFields) {
-        this.buttonHavingEnabled = true;
-        item.data.groupBy = false;
-      }
-    }
-  }
-
-  /**
-   * to know if distinct is selected by user
-   * @param distinctValue
-   */
-  checkDistinct(distinctValue) {
-  }
-
-  /**
-   * get all function from database
-   */
-  GetAllFunction() {
-    this.dataSourceFieldService.getFunctions().subscribe((data: Ffunction[]) => {
-      this.functions = data;
-    });
-  }
-
-  /**
-   * get all join type in the database
-   */
-  GetJoins() {
-    this.dataSourceTableService.getJoins().subscribe((data: Join[]) => {
-      this.joins = data;
-    });
-  }
-
-  /**
-   * to know wich filter to display
-   */
-  typeFilter() {
-    console.log(this.condition);
-  }
-
-  /**
-   * get field of selected table in order by filter
-   * @param orderBy
-   */
-  async filterFieldTable(orderBy) {
-    orderBy.tableField = await this.GetTableFields(orderBy.table.id);
-  }
-
-  /**
-   * get field of each selected table
-   */
-  async filterFieldJoinModel(table) {
-    const fields = await this.GetTableFields(table.id);
-    this.principaleTableFields = fields;
-  }
-
-  /**
-   * get fields of a spicific table selected by user
-   */
-  async filterField() {
-    const fields = await this.GetTableFields(this.temporaryTable.id);
-    this.principaleTableFields = fields;
-  }
-
-  /**
-   * get fields of a spicific table selected by user
-   */
-  async filterGBField(groupM) {
-    groupM.tableField = await this.GetTableFields(groupM.table.id);
-  }
-  /**
-   * get fields of a spicific table selected by user in where filter
-   */
-  async filterWhereField(whereM) {
-    whereM.tableField = await this.GetTableFields(whereM.table.id);
-  }
-
-
-
-
-  /**
-   * define fields to select from selected table in the query
-   */
-  fieldsToSelect(): string {
-    var selectItem: string = '';
-    selectItem += '"' + 'Select';
-    selectItem += ' ';
-    this.dataSourceFieldsGroupBY = [];
-    this.dataSourceFields.forEach((value, key, dataSourceFields) => {
-      // selectItem+=value.tableField.table.name + "." + value.tableField.name;
-      if (value.groupBy == true) {
-        this.dataSourceFieldsGroupBY.push(value);
-      }
-
-      if (value.function != undefined) {
-        console.log(value.function);
-        selectItem +=
-          value.function.designation +
-          '(' +
-          '\\"' +
-          value.tableField.table.name +
-          '\\"' +
-          '.' +
-          '\\"' +
-          value.tableField.name +
-          '\\"' +
-          ')';
-        if (value.alias != undefined) {
-          selectItem += ' ' + 'as' + ' ' + '\\"' + value.alias + '\\"' + ' ';
-        } else {
-          selectItem += ' ' + 'as' + ' ' + '\\"' + value.tableField.name + '\\"' + ' ';
-        }
-      } else {
-        selectItem += '\\"' + value.tableField.table.name + '\\"' + '.' + '\\"' + value.tableField.name + '\\"';
-        if (value.alias != undefined) {
-          selectItem += ' ' + 'as' + ' ' + '\\"' + value.alias + '\\"' + ' ';
-        } else {
-          selectItem += ' ' + 'as' + ' ' + '\\"' + value.tableField.name + '\\"' + ' ';
-        }
-      }
-
-      if (!(key === dataSourceFields.length - 1)) {
-        selectItem += ', ';
-      }
-    });
-    selectItem += ' ';
-    selectItem += 'from';
-    selectItem += ' ';
-    selectItem += '\\"' + this.selectedTable.name + '\\"' + '"';
-    return selectItem;
-  }
-
-
-
-
-  /**
-   * change order of selected fields
-   * @param fields
-   */
-  changeOrderFields(fields) {
-    this.selectedPtreeChild = fields;
-  }
-
-  /**
-   * change display order of selected fields
-   */
-  rowUp() {
-    const index: number = this.selectedItemFields.indexOf(this.selectedPtreeChild);
-    this.selectedItemFields.splice(index, 1);
-    this.selectedItemFields.unshift(this.selectedPtreeChild);
-  }
-
-  /**
-   * change display order of selected fields
-   */
-  rowDown() {
-    const index: number = this.selectedItemFields.indexOf(this.selectedPtreeChild);
-    this.selectedItemFields.splice(index, 1);
-    this.selectedItemFields.push(this.selectedPtreeChild);
-  }
-
-  /**
-   * delete order by filter
-   * @param orderByM
-   */
-  deleteOrderBy(orderByM) {
-    this.position = 'topleft';
-    this.confirmationService.confirm({
-      message: 'Do you want to delete this record?',
-      header: 'Delete Confirmation',
-      icon: 'pi pi-info-circle',
-      accept: async () => {
-        const index: number = this.orderByModels.indexOf(orderByM);
-        this.orderByModels.splice(index, 1);
-        if (this.orderByModels.length == 0) {
-          this.orderByModel = new OrderByModel();
-          this.orderByModels = [this.orderByModel];
-          this.orderB = false;
-        }
-
-        if (orderByM.orderBy.id != undefined) {
-          await this.dataSourceService.DeleteOrderBy(orderByM.orderBy.id).toPromise();
-        }
-        console.log(this.orderByModels);
-
-        this.msgs = { severity: 'info', summary: 'Confirmed', detail: 'Record deleted' };
-      },
-      reject: () => {
-        this.msgs = { severity: 'info', summary: 'Rejected', detail: 'You have rejected' };
-      },
-      key: 'positionDialog',
-    });
-  }
-
-  /**
-   * add new order by filter row
-   * @param orderBy
-   */
-  addOrderBy(orderBy) {
-    var orderByModel = new OrderByModel();
-    this.orderByModels.push(orderByModel);
-  }
-
-  /**
-   * get  all order by filter fields selected by user
-   * @param item
-   */
-  async addOrderByCondition() {
-    for (const orderByM of this.orderByModels) {
-      //add new row order by in order by folter section
-      var orderByF = new OrderBy();
-      orderByM.orderBy.tableField = orderByM.champ;
-      orderByM.orderBy.tableField.table = orderByM.table;
-      if (orderByM.direction == 'Asc') {
-        orderByM.orderBy.orderDirection = 1;
-      } else {
-        orderByM.orderBy.orderDirection = 0;
-      }
-      orderByM.orderBy.dataSource = this.dataSource;
-
-      // this.saveOrderBy(value);
-      if (orderByM.orderBy.id == undefined) {
-        var orderBy = new OrderBy();
-        orderBy = await this.saveOrderBy(orderByM.orderBy)
-        orderByM.orderBy.id = orderBy.id;
-      } else {
-        await this.dataSourceService.UpdateOrderBy(orderByM.orderBy).toPromise();
-      }
-      this.orderBys.push(orderByM.orderBy);
-    }
-  }
-
-  /**
-   * save each field selected in group by filter
-   * @param groupBy
-   * @param table
-   */
-  /*
-  addFieldGroupBy(groupBy, table) {
-    this.dataSfieldForGB.groupBy = true;
-    this.dataSfieldForGB.tableField = groupBy;
-    this.dataSfieldForGB.tableField.table = table;
-  }
-  */
-
-  /**
-   * delete new row to add new join
-   * @param joinM
-   */
-  deleteJoin(joinM) {
-    //delete  row in join filter section
-
-    this.position = 'topleft';
-    this.confirmationService.confirm({
-      message: 'Do you want to delete this record?',
-      header: 'Delete Confirmation',
-      icon: 'pi pi-info-circle',
-      accept: async () => {
-        const index: number = this.joinModels.indexOf(joinM);
-        this.joinModels.splice(index, 1);
-        if (this.joinModels.length == 0) {
-          this.joinModel = new JoinModel();
-          this.joinModels = [this.joinModel];
-          this.joinn = false;
-        }
-        if (joinM.update == true) {
-          await this.expressionTermService.DeleteExpressionTerm(joinM.joinE.id).toPromise();
-          this.dataSourceTableService.DeleteDataSourceTable(joinM.joinE.dataSourceTable.id).toPromise();
-        }
-        this.msgs = { severity: 'info', summary: 'Confirmed', detail: 'Record deleted' };
-      },
-      reject: () => {
-        this.msgs = { severity: 'info', summary: 'Rejected', detail: 'You have rejected' };
-      },
-      key: 'positionDialog',
-    });
-  }
-
-  /**
-   * this function to set brocket closed or opened having fiter
-   * @param whereModel
-   */
-  havingBrackets(having: HavingModel) {
-    if (having.parenthesis) {
-      having.closeParanth = false;
-      // this.nombreClose -= 1;
-      for (const having of this.havingModels) {
-        having.parenthesis = false;
-        having.closeParanth = false;
-      }
-    }
-    else {
-      if (this.openBrockHaving == true) {
-        this.closeBrockHaving = true;
-        this.openBrockHaving = false;
-        having.closeParanth = false;
-        //this.nombreOpen += 1;
-      }
-      else {
-        this.openBrockHaving = true;
-        this.closeBrockHaving = false;
-        having.closeParanth = true;
-        // this.nombreClose += 1;
-      }
-    }
-
-  }
-
-  /**
-   * this function to set brocket closed or opened where filter
-   * @param whereModel
-   */
-  whereBrackets(whereModel: WhereModel) {
-    if (whereModel.parenthesis) {
-      console.log(whereModel.closeParanth);
-      whereModel.closeParanth = false;
-      this.nombreClose -= 1;
-      for (const where of this.whereModels) {
-        where.parenthesis = false;
-        where.closeParanth = false;
-      }
-    }
-    else {
-      if (this.openBrock == true) {
-        this.closeBrock = true;
-        this.openBrock = false;
-        whereModel.closeParanth = false;
-        this.nombreOpen += 1;
-      }
-      else {
-        this.openBrock = true;
-        this.closeBrock = false;
-        whereModel.closeParanth = true;
-        this.nombreClose += 1;
-      }
-    }
-    console.log(whereModel.parenthesis);
-  }
-
-  /**
-   * add new join row
-   */
-  async addJoin(joinM) {
-    var joinModel = new JoinModel();
-    for (const typeJoin of this.joins)
-      if (typeJoin.designation == this.constants.innerJoin) {
-        joinModel.type = typeJoin;
-      }
-    for (const operator of this.operators)
-      if (operator.designation == '=') {
-        joinModel.operator2 = operator;
-      }
-    this.joinModels.push(joinModel);
-  }
 
   /**
    * export result of the query to Excel files
@@ -1226,207 +474,7 @@ export class DynamicBuilderComponent implements OnInit {
     }
   }
 
-  /**
-   * build join expression term of a query
-   * @returns
-   */
-  async addJoinExpressionTerm(): Promise<ExpressionTerm> {
-    this.orderDataSourceTable = 1;
-    for (const joinM of this.joinModels) {
-      if (this.joinExpressionTerms.length != 0) {
-        if (joinM.update != true) {
-          joinM.joinE.firstTerm = new ExpressionTerm();
-          joinM.joinE.secondTerm = new ExpressionTerm();
-        }
-        joinM.joinE.firstTerm.expressionType = 'field';
-        joinM.joinE.firstTerm.tableField = joinM.champ1;
-        joinM.joinE.secondTerm.expressionType = 'field';
-        joinM.joinE.secondTerm.tableField = joinM.champ2;
-        var TjoinExpressionTerm = new ExpressionTerm();
 
-        //the dataSourceTable
-        var dataStable = new DataSourceTable();
-        dataStable.mainEntity = false;
-        dataStable.join = joinM.type;
-        dataStable.table = joinM.joinedTable;
-        dataStable.dataSource = this.dataSource;
-        dataStable.order = this.orderDataSourceTable;
-        this.orderDataSourceTable += 1;
-
-        if (joinM.update == true) {
-          dataStable.id = joinM.joinE.dataSourceTable.id;
-          await this.dataSourceTableService.UpdateDataSourceTable(dataStable).toPromise();
-        } else {
-          TjoinExpressionTerm.dataSourceTable = await this.saveDataSourceTable(dataStable);
-          joinM.joinE.dataSourceTable = TjoinExpressionTerm.dataSourceTable;
-          joinM.joinE.firstTerm.dataSourceTable = TjoinExpressionTerm.dataSourceTable;
-          joinM.joinE.secondTerm.dataSourceTable = TjoinExpressionTerm.dataSourceTable;
-        }
-        //TjoinExpressionTerm.firstTerm = await this.saveExpressionTerm(joinM.joinE.firstTerm);
-        //TjoinExpressionTerm.secondTerm = await this.saveExpressionTerm(joinM.joinE.secondTerm);
-        if (joinM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(joinM.joinE.firstTerm).toPromise();
-          await this.expressionTermService.UpdateExpressionTerm(joinM.joinE.secondTerm).toPromise();
-        } else {
-          TjoinExpressionTerm.firstTerm = await this.saveExpressionTerm(joinM.joinE.firstTerm);
-          TjoinExpressionTerm.secondTerm = await this.saveExpressionTerm(joinM.joinE.secondTerm);
-        }
-        TjoinExpressionTerm.operator = joinM.operator2;
-        TjoinExpressionTerm.expressionType = 'Join';
-        TjoinExpressionTerm.text =
-          ' ' +
-          joinM.type.designation +
-          ' ' +
-          '\\"' +
-          joinM.joinedTable.name +
-          '\\"' +
-          ' ' +
-          'ON' +
-          ' ' +
-          '\\"' +
-          joinM.tablePrincipale.name +
-          '\\"' +
-          '.' +
-          '\\"' +
-          joinM.joinE.firstTerm.tableField.name +
-          '\\"' +
-          ' ' +
-          joinM.operator2.designation +
-          ' ' +
-          '\\"' +
-          joinM.joinedTable.name +
-          '\\"' +
-          '.' +
-          '\\"' +
-          joinM.joinE.secondTerm.tableField.name +
-          '\\"' +
-          ' "';
-
-        var mExpressionTerm = new ExpressionTerm();
-        mExpressionTerm.firstTerm = this.joinExpressionTerms[this.joinExpressionTerms.length - 1];
-        mExpressionTerm.expressionType = joinM.Orerator1;
-
-        /*
-        if (this.joinn == false) {
-          TjoinExpressionTerm.dataSourceTable = await this.saveDataSourceTable(dataStable);
-          mExpressionTerm.secondTerm = await this.saveExpressionTerm(TjoinExpressionTerm);
-        }*/
-        if (joinM.update == true) {
-          TjoinExpressionTerm.id = joinM.joinE.id;
-          await this.expressionTermService.UpdateExpressionTerm(TjoinExpressionTerm).toPromise();
-
-          //this.joinExpressionTerm.dataSourceTable = await this.saveDataSourceTable(dataStable);
-          // this.joinExpressionTerm = await this.saveExpressionTerm(this.joinExpressionTerm);
-        } else {
-          mExpressionTerm.secondTerm = await this.saveExpressionTerm(TjoinExpressionTerm);
-          joinM.joinE = mExpressionTerm.secondTerm;
-          joinM.update = true;
-        }
-        mExpressionTerm.text =
-          this.joinExpressionTerms[this.joinExpressionTerms.length - 1].text.slice(0, -1) + TjoinExpressionTerm.text;
-        // mExpressionTerm.expressionType=joinM.Orerator1;
-        mExpressionTerm.dataSourceTable = TjoinExpressionTerm.dataSourceTable;
-        // mExpressionTerm= await this.saveExpressionTerm(mExpressionTerm);
-        //this.joinExpressionTerms.push(TjoinExpressionTerm);
-        this.joinExpressionTerms.push(mExpressionTerm);
-        this.joinExpressionTerm.text = mExpressionTerm.text;
-
-        /**
-         *  if we have multiple join condition
-         */
-      } else {
-
-        //one join
-        if (joinM.update != true) {
-          joinM.joinE.firstTerm = new ExpressionTerm();
-          joinM.joinE.secondTerm = new ExpressionTerm();
-        }
-        joinM.joinE.firstTerm.expressionType = 'field';
-        joinM.joinE.firstTerm.tableField = joinM.champ1;
-        joinM.joinE.secondTerm.expressionType = 'field';
-        joinM.joinE.secondTerm.tableField = joinM.champ2;
-        dataStable = new DataSourceTable();
-        dataStable.mainEntity = false;
-        dataStable.join = joinM.type;
-        dataStable.table = joinM.joinedTable;
-        dataStable.dataSource = this.dataSource;
-        dataStable.order = this.orderDataSourceTable;
-        this.orderDataSourceTable += 1;
-        if (joinM.update == true) {
-          dataStable.id = joinM.joinE.dataSourceTable.id;
-          await this.dataSourceTableService.UpdateDataSourceTable(dataStable).toPromise();
-          //this.joinExpressionTerm.dataSourceTable = await this.saveDataSourceTable(dataStable);
-          // this.joinExpressionTerm = await this.saveExpressionTerm(this.joinExpressionTerm);
-        } else {
-          this.joinExpressionTerm.dataSourceTable = await this.saveDataSourceTable(dataStable);
-          joinM.joinE.firstTerm.dataSourceTable = this.joinExpressionTerm.dataSourceTable;
-          joinM.joinE.secondTerm.dataSourceTable = this.joinExpressionTerm.dataSourceTable;
-          joinM.joinE.dataSourceTable = this.joinExpressionTerm.dataSourceTable
-
-        }
-        if (joinM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(joinM.joinE.firstTerm).toPromise();
-          await this.expressionTermService.UpdateExpressionTerm(joinM.joinE.secondTerm).toPromise();
-        } else {
-          this.joinExpressionTerm.firstTerm = await this.saveExpressionTerm(joinM.joinE.firstTerm);
-          this.joinExpressionTerm.secondTerm = await this.saveExpressionTerm(joinM.joinE.secondTerm);
-        }
-        this.joinExpressionTerm.operator = joinM.operator2;
-        this.joinExpressionTerm.expressionType = 'Join';
-        this.joinExpressionTerm.text =
-          ' ' +
-          joinM.type.designation +
-          ' ' +
-          '\\"' +
-          joinM.joinedTable.name +
-          '\\"' +
-          ' ' +
-          'ON' +
-          ' ' +
-          '\\"' +
-          joinM.tablePrincipale.name +
-          '\\"' +
-          '.' +
-          '\\"' +
-          joinM.joinE.firstTerm.tableField.name +
-          '\\"' +
-          ' ' +
-          joinM.operator2.designation +
-          ' ' +
-          '\\"' +
-          joinM.joinedTable.name +
-          '\\"' +
-          '.' +
-          '\\"' +
-          joinM.joinE.secondTerm.tableField.name +
-          '\\"' +
-          ' "';
-
-        if (joinM.update == true) {
-          this.joinExpressionTerm.id = joinM.joinE.id;
-          await this.expressionTermService.UpdateExpressionTerm(this.joinExpressionTerm).toPromise();
-          //this.joinExpressionTerm.dataSourceTable = await this.saveDataSourceTable(dataStable);
-          // this.joinExpressionTerm = await this.saveExpressionTerm(this.joinExpressionTerm);
-        } else {
-          this.joinExpressionTerm = await this.saveExpressionTerm(this.joinExpressionTerm);
-          joinM.joinE = this.joinExpressionTerm;
-          joinM.update = true;
-        }
-        this.joinExpressionTerms.push(this.joinExpressionTerm);
-
-        // dataSourceTables
-        /*
-        var dataStable = new DataSourceTable();
-        dataStable.mainEntity = true;
-        dataStable.table = this.joinExpressionTermModel.tablePrincipale;
-        this.dataSourceTables.push(dataStable);
-        */
-
-        //this.dataSourceTables.push(dataStable);
-      }
-    }
-    return await this.joinExpressionTerm;
-  }
 
   /**
    * change display order in exported file
@@ -1707,7 +755,7 @@ export class DynamicBuilderComponent implements OnInit {
       columnStyles.push( {cellWidth:'auto'} )
      }
     }
-    console.log(columnStyles);
+
     //doc.text(newdat, doc.internal.pageSize.getWidth() - 100, doc.internal.pageSize.getHeight() - 20);
     autoTable(doc, {
       styles: {
@@ -1769,944 +817,16 @@ export class DynamicBuilderComponent implements OnInit {
     doc.save('myPdfTable.pdf');
   }
 
-  /**
-   * get table fields for selected joined table
-   * @param joinM
-   */
-  async selectedJoinTable2(joinM) {
-    //this.joinExpressionTermModel.joinedTable = joinM.joinedTable.id;
-    joinM.tableField1 = await this.GetTableForeignFields(joinM.joinedTable.id);
-    joinM.tableField1.forEach(element => {
-      if (element.designation == "F") {
-        joinM.champ2 = element;
-      }
-    });
-  }
 
-  /**
-   * get table fields for selected main table
-   * @param joinM
-   */
-  async selectedJoinTable1(joinM: JoinModel) {
-    //this.joinExpressionTermModel.tablePrincipale = joinM.tablePrincipale;
-    joinM.tableField = await this.GetTableFields(joinM.tablePrincipale.id);
-    joinM.tableField.forEach(element => {
-      if (element.designation == "P") {
-        joinM.champ1 = element;
-      }
-    });
-  }
 
-  /**
-   * this function is to add join filter to sql query
-   * @param sqlQuery
-   * @returns
-   */
-  addJoinToSqlQuery(sqlQuery: string): string {
-    sqlQuery += this.joinExpressionTerm.text;
-    return sqlQuery;
-  }
 
-  //for having
 
-  /**
-   *
-   * @param item get and save selected having fields table
-   */
-  async selectedHavingTable(havingM) {
-    havingM.tableField = await this.GetTableFields(havingM.table.id);
-  }
 
-  /**
-   *  this function for adding having filter to sql Query
-   * @param sqlQuery
-   * @returns
-   */
-  async addHavingToSqlQuery(sqlQuery: string): Promise<string> {
-    sqlQuery = sqlQuery.slice(0, -1);
-    sqlQuery += ' ' + 'having';
-    sqlQuery += ' ' + this.havingSqlExpressionTerm.text + '"';
-    console.log(sqlQuery);
-    return sqlQuery;
-  }
 
-  /**
-   * save expressionTerm in database
-   * @param expressionTerm
-   * @returns
-   */
-  async saveExpressionTerm(expressionTerm: ExpressionTerm): Promise<ExpressionTerm> {
-    return await this.expressionTermService.SaveExpressionTerm(expressionTerm).toPromise();
-  }
 
-  /**
-   * save dataSourceField in database
-   * @param expressionTerm
-   * @returns
-   */
-  async saveDataSourceTable(dataSourceTable: DataSourceTable): Promise<DataSourceTable> {
-    return await this.dataSourceTableService.SaveDataSourceTable(dataSourceTable).toPromise();
-  }
 
-  /**
-   * save order by filters of a query
-   * @param orderBy
-   * @returns
-   */
-  async saveOrderBy(orderBy: OrderBy): Promise<OrderBy> {
-    return await this.dataSourceService.SaveOrderBy(orderBy).toPromise();
-  }
 
-  /**
-   * delete row fr
-   * @param whereM
-   */
-  async deleteWhereExpressionTerm(whereM) {
-    //delete  row in where filter section
-    this.position = 'topleft';
-    this.confirmationService.confirm({
-      message: 'Do you want to delete this record?',
-      header: 'Delete Confirmation',
-      icon: 'pi pi-info-circle',
-      accept: async () => {
-        const index: number = this.whereModels.indexOf(whereM);
-        this.whereModels.splice(index, 1);
-        if (this.whereModels.length == 0) {
-          this.whereModel = new WhereModel();
-          this.whereModels = [this.whereModel];
-          this.where = false;
-        }
-        if (whereM.update == true) {
-          this.expressionTermService.DeleteExpressionTerm(whereM.whereE.id).toPromise();
-          if (whereM.OperatorID != undefined) {
-            this.expressionTermService.DeleteExpressionTerm(whereM.OperatorID).toPromise();
-          } else {
-            console.log('one where ');
-          }
-        }
-        if (whereM.parenthesis == true) {
-          for (const where of this.whereModels) {
-            where.parenthesis = false;
-            where.closeParanth = false;
-          }
-        }
-        this.msgs = { severity: 'info', summary: 'Confirmed', detail: 'Record deleted' };
-      },
-      reject: () => {
-        this.msgs = { severity: 'info', summary: 'Rejected', detail: 'You have rejected' };
-      },
-      key: 'positionDialog',
-    });
-  }
 
-  /**
-   * get and save added expression term
-   * @param item
-   */
-  whereOperator(value: WhereModel) {
-    if (value.operator2.designation == "between" || value.operator2.designation == "in") {
-      value.oneValueCondition = false;
-    }
-    else {
-      value.oneValueCondition = true;
-    }
-  }
-
-  /**
-   * add new where filters condition when selecting 'between' or 'in' operator
-   * @param value
-   */
-  /*
-  addWhereValueCondition(value: WhereModel) {
-    var valueCondition: Condition = new Condition();
-    value.values.push(valueCondition);
-    console.log(value);
-  }
-  */
-
-  /**
-   * add new where filter row
-   * @param whereM
-   */
-  async addWhereExpressionTerm(whereM) {
-    //add new row in where filter section
-    var whereModel = new WhereModel();
-    whereModel.etou = true;
-    whereModel.operator1 = "And";
-    console.log(whereModel.etou);
-    this.whereModels.push(whereModel);
-    for (const where of this.whereModels) {
-      where.parenthesis = false;
-      where.closeParanth = false;
-    }
-  }
-
-  /**
-   * add where filter expression to our query
-   * @returns
-   */
-  async addWhere(): Promise<ExpressionTerm> {
-    var nombreOpenBrockets: number = 0;
-    var nombreCloseBrockes: number = 0;
-    this.orderWhere = 1;
-    var closebrockets: boolean = false;
-    for (const [key, whereM] of this.whereModels.entries()) {
-      var TExpressionTerm = new ExpressionTerm();
-      //add logic operator
-      if (whereM.operator1 != undefined) {
-        var tWhereExpressionTerm = new ExpressionTerm();
-        tWhereExpressionTerm.text = ' ';
-        //TExpressionTerm.firstTerm = this.expressionTerms[this.expressionTerms.length - 1]
-        if (whereM.update != true) {
-          whereM.whereE.firstTerm = new ExpressionTerm();
-          whereM.whereE.secondTerm = new ExpressionTerm();
-        }
-        whereM.whereE.firstTerm.expressionType = 'Field';
-        whereM.whereE.firstTerm.tableField = whereM.champ;
-        whereM.whereE.firstTerm.tableField.table = whereM.table;
-        whereM.whereE.firstTerm.dataSourceTable = this.dataSourceTable;
-        //tWhereExpressionTerm.firstTerm = await this.saveExpressionTerm(whereM.whereE.firstTerm);
-        if (whereM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(whereM.whereE.firstTerm).toPromise();
-        } else {
-          tWhereExpressionTerm.firstTerm = await this.saveExpressionTerm(whereM.whereE.firstTerm);
-          whereM.whereE.firstTerm.id = tWhereExpressionTerm.firstTerm.id;
-        }
-        var conditionValue = [];
-        if (whereM.operator2.designation == 'between' || whereM.operator2.designation == 'in') {
-          //  whereM.value=undefined;
-          conditionValue = whereM.value.split(',');
-        }
-        //var secondTerm = new ExpressionTerm();
-        whereM.whereE.secondTerm.expressionType = 'constante';
-        var cond = "";
-        if (whereM.operator2.designation == 'in') {
-          cond += '(';
-        }
-        for (const [key, condition] of conditionValue.entries()) {
-          cond += "\'" + condition + "\'";
-          if (!(key == conditionValue.length - 1)) {
-            if (whereM.operator2.designation == 'between') {
-              cond += " " + 'and' + " ";
-            } else {
-              cond += " " + ',' + " ";
-            }
-          }
-        }
-        if (whereM.operator2.designation == 'in') {
-          cond += ')';
-        }
-        if (whereM.operator2.designation == 'between' || whereM.operator2.designation == 'in') {
-          whereM.whereE.secondTerm.text = cond;
-        }
-        else {
-          whereM.whereE.secondTerm.text = whereM.value;
-        }
-        whereM.whereE.secondTerm.dataSourceTable = this.dataSourceTable;
-        tWhereExpressionTerm.operator = whereM.operator2;
-
-        //tWhereExpressionTerm.secondTerm = await this.saveExpressionTerm(whereM.whereE.secondTerm);
-        if (whereM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(whereM.whereE.secondTerm).toPromise();
-        } else {
-          tWhereExpressionTerm.secondTerm = await this.saveExpressionTerm(whereM.whereE.secondTerm);
-          whereM.whereE.secondTerm.id = tWhereExpressionTerm.secondTerm.id;
-        }
-        tWhereExpressionTerm.expressionType = 'where';
-        var close: boolean = false;
-        if (whereM.parenthesis == true && closebrockets == false) {
-          tWhereExpressionTerm.text += '(';
-          close = true;
-          nombreOpenBrockets += 1;
-        }
-        tWhereExpressionTerm.text +=
-          '\\"' +
-          whereM.whereE.firstTerm.tableField.table.name +
-          '\\"' +
-          '.' +
-          '\\"' +
-          whereM.whereE.firstTerm.tableField.name +
-          '\\"' +
-          ' ' +
-          whereM.operator2.designation +
-          ' ';
-        if (whereM.operator2.designation == "between" || whereM.operator2.designation == 'in') {
-          tWhereExpressionTerm.text += whereM.whereE.secondTerm.text;
-        } else {
-          tWhereExpressionTerm.text += '\'' + whereM.whereE.secondTerm.text + '\'';
-
-        }
-        if (whereM.parenthesis == true && closebrockets == true) {
-          tWhereExpressionTerm.text += ')';
-          closebrockets = false;
-          nombreCloseBrockes += 1;
-
-        }
-        if (close == true) {
-          closebrockets = true;
-        }
-
-        /*
-        if(key==this.whereModels.length-1 && whereM.parenthesis==true )
-        {
-          tWhereExpressionTerm.text+=')';
-        }
-        */
-
-        /*TExpressionTerm.text = " "
-          + this.expressionTerms[this.expressionTerms.length - 1].text
-          + " "
-          + whereM.operator1
-          + " "
-          + tWhereExpressionTerm.text;*/
-        TExpressionTerm.text = whereM.operator1;
-
-        //TExpressionTerm.expressionType = whereM.operator1;
-        TExpressionTerm.expressionType = this.constants.whereFilter;
-        TExpressionTerm.dataSourceTable = this.dataSourceTable;
-        tWhereExpressionTerm.dataSourceTable = this.dataSourceTable;
-        this.whereExpressionTerm.text =
-          (await ' ') +
-          this.expressionTerms[this.expressionTerms.length - 1].text +
-          ' ' +
-          whereM.operator1 +
-          ' ' +
-          tWhereExpressionTerm.text;
-        tWhereExpressionTerm.order = this.orderWhere;
-        this.orderWhere += 1;
-
-        //tWhereExpressionTerm = await this.saveExpressionTerm(tWhereExpressionTerm);
-        if (whereM.update == true) {
-          tWhereExpressionTerm.id = whereM.whereE.id;
-          await this.expressionTermService.UpdateExpressionTerm(tWhereExpressionTerm).toPromise();
-        } else {
-          tWhereExpressionTerm = await this.saveExpressionTerm(tWhereExpressionTerm);
-          whereM.whereE.id = tWhereExpressionTerm.id;
-        }
-
-        //this.expressionTerms.push(tWhereExpressionTerm);
-        // TExpressionTerm.secondTerm = tWhereExpressionTerm;
-        TExpressionTerm.order = this.orderWhere;
-        this.orderWhere += 1;
-
-        //TExpressionTerm = await this.saveExpressionTerm(TExpressionTerm);
-        if (whereM.update == true) {
-          TExpressionTerm.id = whereM.OperatorID;
-          await this.expressionTermService.UpdateExpressionTerm(TExpressionTerm).toPromise();
-        } else {
-          TExpressionTerm = await this.saveExpressionTerm(TExpressionTerm);
-          whereM.OperatorID = TExpressionTerm.id;
-          whereM.update = true;
-        }
-
-        /*
-          TExpressionTerm.text = " "
-          + this.expressionTerms[this.expressionTerms.length - 1].text
-          + " "
-          + whereM.operator1
-          + " "
-          + tWhereExpressionTerm.text;*/
-        this.expressionTerms.push(this.whereExpressionTerm);
-
-        //
-      } else {
-        var t1WhereExpressionTerm = new ExpressionTerm();
-        t1WhereExpressionTerm.text = ' ';
-        if (whereM.update != true) {
-          whereM.whereE.firstTerm = new ExpressionTerm();
-          whereM.whereE.secondTerm = new ExpressionTerm();
-        }
-        whereM.whereE.firstTerm.expressionType = 'Field';
-        whereM.whereE.firstTerm.tableField = whereM.champ;
-        whereM.whereE.firstTerm.tableField.table = whereM.table;
-        whereM.whereE.firstTerm.dataSourceTable = await this.dataSourceTable;
-
-        // t1WhereExpressionTerm.firstTerm = await this.saveExpressionTerm(whereM.whereE.firstTerm);
-        if (whereM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(whereM.whereE.firstTerm).toPromise();
-        } else {
-          t1WhereExpressionTerm.firstTerm = await this.saveExpressionTerm(whereM.whereE.firstTerm);
-          whereM.whereE.firstTerm.id = t1WhereExpressionTerm.firstTerm.id;
-        }
-
-        var conditionValue = [];
-        if (whereM.operator2.designation == 'between' || whereM.operator2.designation == 'in') {
-          //  whereM.value=undefined;
-          conditionValue = whereM.value.split(',');
-        }
-        //var secondTerm = new ExpressionTerm();
-        whereM.whereE.secondTerm.expressionType = 'constante';
-
-        var cond = "";
-        if (whereM.operator2.designation == 'in') {
-          cond += '(';
-        }
-        for (const [key, condition] of conditionValue.entries()) {
-          cond += "\'" + condition + "\'";
-          if (!(key == conditionValue.length - 1)) {
-            if (whereM.operator2.designation == 'between') {
-              cond += " " + 'and' + " ";
-            } else {
-              cond += " " + ',' + " ";
-            }
-          }
-        }
-
-        if (whereM.operator2.designation == 'in') {
-          cond += ')';
-        }
-
-        if (whereM.operator2.designation == 'between' || whereM.operator2.designation == 'in') {
-          whereM.whereE.secondTerm.text = cond;
-        }
-        else {
-          whereM.whereE.secondTerm.text = whereM.value;
-        }
-        /*
-         if(whereM.operator2.designation == 'between' || whereM.operator2.designation == 'in')
-        {
-          whereM.value=undefined;
-        }
-        if (whereM.value != undefined) {
-          whereM.whereE.secondTerm.text = whereM.value;
-        }
-        else {
-          var cond = "";
-          if (whereM.operator2.designation == 'in') {
-            cond += '(';
-          }
-          for (const [key, condition] of whereM.values.entries()) {
-            cond +=  "\'"+condition.value+"\'";
-            if (!(key == whereM.values.length - 1)) {
-              if (whereM.operator2.designation == 'between') {
-                cond += " " + 'and' + " ";
-              } else {
-                cond += " " + ',' + " ";
-              }
-            }
-          }
-          if (whereM.operator2.designation == 'in') {
-            cond += ')';
-          }
-          whereM.whereE.secondTerm.text = cond;
-        }
-        */
-
-        whereM.whereE.secondTerm.dataSourceTable = this.dataSourceTable;
-        t1WhereExpressionTerm.operator = whereM.operator2;
-
-        //t1WhereExpressionTerm.secondTerm = await this.saveExpressionTerm(whereM.whereE.secondTerm);
-        if (whereM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(whereM.whereE.secondTerm).toPromise();
-        } else {
-          t1WhereExpressionTerm.secondTerm = await this.saveExpressionTerm(whereM.whereE.secondTerm);
-          whereM.whereE.secondTerm.id = t1WhereExpressionTerm.secondTerm.id;
-        }
-        t1WhereExpressionTerm.expressionType = this.constants.whereFilter;
-        t1WhereExpressionTerm.dataSourceTable = this.dataSourceTable;
-
-        if (whereM.parenthesis == true && this.whereModels.length > 1) {
-          t1WhereExpressionTerm.text += '(';
-          closebrockets = true;
-          nombreOpenBrockets += 1;
-        }
-
-        t1WhereExpressionTerm.text +=
-          '\\"' +
-          whereM.whereE.firstTerm.tableField.table.name +
-          '\\"' +
-          '.' +
-          '\\"' +
-          whereM.whereE.firstTerm.tableField.name +
-          '\\"' +
-          ' ' +
-          whereM.operator2.designation +
-          ' ';
-        if (whereM.operator2.designation == "between" || whereM.operator2.designation == 'in') {
-          t1WhereExpressionTerm.text += whereM.whereE.secondTerm.text;
-        } else {
-          t1WhereExpressionTerm.text += '\'' + whereM.whereE.secondTerm.text + '\'';
-
-        }
-
-        /*
-        if(this.whereModels.length==1)
-        {
-          t1WhereExpressionTerm.text+=')';
-        }
-        */
-        t1WhereExpressionTerm.order = this.orderWhere;
-        this.orderWhere += 1;
-        // t1WhereExpressionTerm = await this.saveExpressionTerm(t1WhereExpressionTerm);
-        if (whereM.update == true) {
-          t1WhereExpressionTerm.id = whereM.whereE.id;
-          await this.expressionTermService.UpdateExpressionTerm(t1WhereExpressionTerm).toPromise();
-        } else {
-          t1WhereExpressionTerm = await this.saveExpressionTerm(t1WhereExpressionTerm);
-          whereM.update = true;
-          whereM.whereE.id = t1WhereExpressionTerm.id;
-        }
-        this.expressionTerms.push(t1WhereExpressionTerm);
-        this.whereExpressionTerm = await t1WhereExpressionTerm;
-      }
-    }
-    if (nombreOpenBrockets != nombreCloseBrockes) {
-      console.log("close brockets");
-    }
-    return await this.whereExpressionTerm;
-  }
-
-  /**
-   * function to delete selected having condition
-   * @param havingM
-   */
-  deleteHavingExpressionTerm(havingM) {
-    //delete  row in where filter section
-    this.position = 'topleft';
-    this.confirmationService.confirm({
-      message: 'Do you want to delete this record?',
-      header: 'Delete Confirmation',
-      icon: 'pi pi-info-circle',
-      accept: async () => {
-        const index: number = this.havingModels.indexOf(havingM);
-        this.havingModels.splice(index, 1);
-        if (this.havingModels.length == 0) {
-          this.havingModel = new HavingModel();
-          this.havingModels = [this.havingModel];
-          this.having = false;
-        }
-        if (havingM.update == true) {
-          this.expressionTermService.DeleteExpressionTerm(havingM.havingE.id).toPromise();
-          if (havingM.OperatorID != undefined) {
-            this.expressionTermService.DeleteExpressionTerm(havingM.OperatorID).toPromise();
-          }
-        }
-        if (havingM.parenthesis == true) {
-          for (const having of this.havingModels) {
-            having.parenthesis = false;
-            having.closeParanth = false;
-          }
-        }
-        this.msgs = { severity: 'info', summary: 'Confirmed', detail: 'Record deleted' };
-      },
-      reject: () => {
-        this.msgs = { severity: 'info', summary: 'Rejected', detail: 'You have rejected' };
-      },
-      key: 'positionDialog',
-    });
-  }
-
-  /**
-   * add new filter having row
-   * @param havingM
-   */
-  async addHavingExpressionTerm(havingM) {
-    //add new row in having filter section
-    var havingModel = new HavingModel();
-    havingModel.EtOu = true;
-    havingModel.operator1 = "And";
-    this.havingModels.push(havingModel);
-    for (const having of this.havingModels) {
-      having.parenthesis = false;
-      having.closeParanth = false;
-    }
-  }
-
-  /**
-   * add having filter expression to our query
-   * we have two case in thid function
-   * first : one having filter in the query
-   * second : multiple having filter in the query
-   * in this function we add or update having condition depending on user manipulation
-   *
-   */
-  async addHaving(): Promise<ExpressionTerm> {
-    this.orderHaving = 1;
-    var closebrocket: boolean = false;
-    for (const [key, havingM] of this.havingModels.entries()) {
-      var TExpressionTerm = new ExpressionTerm();
-      if (havingM.operator1 != undefined) {
-        let tHavingExpressionTerm = new ExpressionTerm();
-        tHavingExpressionTerm.text = ' ';
-
-        // TExpressionTerm.firstTerm = this.expressionHavingTerms[this.expressionHavingTerms.length - 1]
-        //var firstTerm = new ExpressionTerm();
-        if (havingM.update != true) {
-          havingM.havingE.firstTerm = new ExpressionTerm();
-          havingM.havingE.secondTerm = new ExpressionTerm();
-          havingM.havingE.firstTerm.fieldsDataSource = new DataSourceField();
-        }
-        havingM.havingE.firstTerm.expressionType = 'Field';
-        havingM.havingE.firstTerm.dataSourceTable = this.dataSourceTable;
-        let fieldDataSource: DataSourceField = new DataSourceField();
-        havingM.havingE.firstTerm.fieldsDataSource.function = havingM.function;
-        havingM.havingE.firstTerm.fieldsDataSource.tableField = havingM.champ;
-        havingM.havingE.firstTerm.fieldsDataSource.tableField.table = havingM.table;
-        tHavingExpressionTerm.operator = havingM.operator2;
-        fieldDataSource = havingM.havingE.firstTerm.fieldsDataSource;
-        if (havingM.update == true) {
-          await this.dataSourceFieldService
-            .UpdateDataSourceField(havingM.havingE.firstTerm.fieldsDataSource)
-            .toPromise();
-        } else {
-          havingM.havingE.firstTerm.fieldsDataSource = await this.dataSourceFieldService
-            .SaveDataSourceField(havingM.havingE.firstTerm.fieldsDataSource)
-            .toPromise();
-        }
-
-        //tHavingExpressionTerm.firstTerm = await this.saveExpressionTerm(havingM.havingE.firstTerm);
-        if (havingM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(havingM.havingE.firstTerm).toPromise();
-        } else {
-          tHavingExpressionTerm.firstTerm = await this.saveExpressionTerm(havingM.havingE.firstTerm);
-          havingM.havingE.firstTerm.id = tHavingExpressionTerm.firstTerm.id;
-        }
-
-        havingM.havingE.secondTerm.expressionType = 'constante';
-        //havingM.havingE.secondTerm.text = havingM.value;
-        var conditionValue = [];
-        if (havingM.operator2.designation == 'between' || havingM.operator2.designation == 'in') {
-          //  whereM.value=undefined;
-          conditionValue = havingM.value.split(',');
-        }
-        //var secondTerm = new ExpressionTerm();
-        havingM.havingE.secondTerm.expressionType = 'constante';
-        let cond = "";
-        if (havingM.operator2.designation == 'in') {
-          cond += '(';
-        }
-        for (const [key, condition] of conditionValue.entries()) {
-          cond += "\'" + condition + "\'";
-          if (!(key == conditionValue.length - 1)) {
-            if (havingM.operator2.designation == 'between') {
-              cond += " " + 'and' + " ";
-            } else {
-              cond += " " + ',' + " ";
-            }
-          }
-        }
-        if (havingM.operator2.designation == 'in') {
-          cond += ')';
-        }
-        if (havingM.operator2.designation == 'between' || havingM.operator2.designation == 'in') {
-          havingM.havingE.secondTerm.text = cond;
-        }
-        else {
-          havingM.havingE.secondTerm.text = havingM.value;
-        }
-        havingM.havingE.secondTerm.dataSourceTable = this.dataSourceTable;
-        // tHavingExpressionTerm.secondTerm = await this.saveExpressionTerm(havingM.havingE.secondTerm);
-        if (havingM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(havingM.havingE.secondTerm).toPromise();
-        } else {
-          tHavingExpressionTerm.secondTerm = await this.saveExpressionTerm(havingM.havingE.secondTerm);
-          havingM.havingE.secondTerm.id = tHavingExpressionTerm.secondTerm.id;
-        }
-        tHavingExpressionTerm.expressionType = this.constants.havingFilter;
-        var closeB: boolean = false;
-        if (havingM.parenthesis == true && closebrocket == false) {
-          tHavingExpressionTerm.text += '(';
-          closeB = true;
-          // nombreOpenBrockets+=1;
-
-        }
-        tHavingExpressionTerm.text +=
-          havingM.havingE.firstTerm.fieldsDataSource.function.designation +
-          '(' +
-          '\\"' +
-          fieldDataSource.tableField.table.name +
-          '\\"' +
-          '.' +
-          '\\"' +
-          fieldDataSource.tableField.name +
-          '\\"' +
-          ')' +
-          ' ' +
-          havingM.operator2.designation +
-          ' ';
-        if (havingM.operator2.designation == "between" || havingM.operator2.designation == 'in') {
-          tHavingExpressionTerm.text += havingM.havingE.secondTerm.text;
-        } else {
-          tHavingExpressionTerm.text += '\'' + havingM.havingE.secondTerm.text + '\'';
-        }
-        TExpressionTerm.expressionType = this.constants.havingFilter;
-        if (havingM.parenthesis == true && closebrocket == true) {
-          tHavingExpressionTerm.text += ')';
-          closebrocket = false;
-          // nombreCloseBrockes+=1;
-        }
-        if (closeB == true) {
-          closebrocket = true;
-        }
-
-        /*
-        TExpressionTerm.text = " "
-          + this.expressionTerms[this.expressionTerms.length - 1].text
-
-          + " "
-          + havingM.operator1
-          + " "
-          + tHavingExpressionTerm.text;
-          */
-        TExpressionTerm.text = havingM.operator1;
-        this.havingSqlExpressionTerm.text =
-          (await ' ') +
-          this.expressionHavingTerms[this.expressionHavingTerms.length - 1].text +
-          ' ' +
-          havingM.operator1 +
-          ' ' +
-          tHavingExpressionTerm.text;
-        tHavingExpressionTerm.dataSourceTable = this.dataSourceTable;
-        tHavingExpressionTerm.order = this.orderHaving;
-        this.orderHaving += 1;
-        // tHavingExpressionTerm = await this.saveExpressionTerm(tHavingExpressionTerm);
-        if (havingM.update == true) {
-          tHavingExpressionTerm.id = havingM.havingE.id;
-          await this.expressionTermService.UpdateExpressionTerm(tHavingExpressionTerm).toPromise();
-        } else {
-          t1HavingExpressionTerm = await this.saveExpressionTerm(tHavingExpressionTerm);
-          havingM.havingE.id = t1HavingExpressionTerm.id;
-        }
-
-        // this.expressionTerms.push(tHavingExpressionTerm);
-        TExpressionTerm.dataSourceTable = this.dataSourceTable;
-        // TExpressionTerm.secondTerm = tHavingExpressionTerm;
-        TExpressionTerm.order = this.orderHaving;
-        this.orderHaving += 1;
-        // TExpressionTerm = await this.saveExpressionTerm(TExpressionTerm);
-        if (havingM.update == true) {
-          TExpressionTerm.id = havingM.OperatorID;
-          await this.expressionTermService.UpdateExpressionTerm(TExpressionTerm).toPromise();
-        } else {
-          TExpressionTerm = await this.saveExpressionTerm(TExpressionTerm);
-          havingM.OperatorID = TExpressionTerm.id;
-          havingM.update = true
-        }
-        this.expressionHavingTerms.push(this.havingSqlExpressionTerm);
-        //this.havingSqlExpressionTerm = TExpressionTerm;
-      } else {
-        var t1HavingExpressionTerm = new ExpressionTerm();
-        t1HavingExpressionTerm.text = ' ';
-        if (havingM.update != true) {
-          havingM.havingE.firstTerm = new ExpressionTerm();
-          havingM.havingE.secondTerm = new ExpressionTerm();
-          havingM.havingE.firstTerm.fieldsDataSource = new DataSourceField();
-        }
-        havingM.havingE.firstTerm.expressionType = 'Field';
-        havingM.havingE.firstTerm.dataSourceTable = this.dataSourceTable;
-        var fieldDataSource: DataSourceField = new DataSourceField();
-        havingM.havingE.firstTerm.fieldsDataSource.function = havingM.function;
-        havingM.havingE.firstTerm.fieldsDataSource.tableField = havingM.champ;
-        havingM.havingE.firstTerm.fieldsDataSource.tableField.table = havingM.table;
-        havingM.havingE.firstTerm.dataSourceTable = this.dataSourceTable;
-        fieldDataSource = havingM.havingE.firstTerm.fieldsDataSource;
-        console.log(havingM.havingE.firstTerm.fieldsDataSource);
-        if (havingM.update == true) {
-          await this.dataSourceFieldService
-            .UpdateDataSourceField(havingM.havingE.firstTerm.fieldsDataSource)
-            .toPromise();
-        } else {
-          havingM.havingE.firstTerm.fieldsDataSource = await this.dataSourceFieldService
-            .SaveDataSourceField(havingM.havingE.firstTerm.fieldsDataSource)
-            .toPromise();
-        }
-
-        //t1HavingExpressionTerm.firstTerm = await this.saveExpressionTerm(firstTerm);
-        if (havingM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(havingM.havingE.firstTerm).toPromise();
-        } else {
-          t1HavingExpressionTerm.firstTerm = await this.saveExpressionTerm(havingM.havingE.firstTerm);
-          havingM.havingE.firstTerm.id = t1HavingExpressionTerm.firstTerm.id;
-        }
-        havingM.havingE.secondTerm.expressionType = 'constante';
-        //havingM.havingE.secondTerm.text = havingM.value;
-        var conditionValue = [];
-        if (havingM.operator2.designation == 'between' || havingM.operator2.designation == 'in') {
-          //  whereM.value=undefined;
-          conditionValue = havingM.value.split(',');
-        }
-        //var secondTerm = new ExpressionTerm();
-        havingM.havingE.secondTerm.expressionType = 'constante';
-
-        var cond = "";
-        if (havingM.operator2.designation == 'in') {
-          cond += '(';
-        }
-        for (const [key, condition] of conditionValue.entries()) {
-          cond += "\'" + condition + "\'";
-          if (!(key == conditionValue.length - 1)) {
-            if (havingM.operator2.designation == 'between') {
-              cond += " " + 'and' + " ";
-            } else {
-              cond += " " + ',' + " ";
-            }
-          }
-        }
-        if (havingM.operator2.designation == 'in') {
-          cond += ')';
-        }
-        if (havingM.operator2.designation == 'between' || havingM.operator2.designation == 'in') {
-          havingM.havingE.secondTerm.text = cond;
-        }
-        else {
-          havingM.havingE.secondTerm.text = havingM.value;
-        }
-        havingM.havingE.secondTerm.dataSourceTable = this.dataSourceTable;
-        havingM.havingE.secondTerm.dataSourceTable = this.dataSourceTable;
-        t1HavingExpressionTerm.operator = havingM.operator2;
-
-        //t1HavingExpressionTerm.secondTerm = await this.saveExpressionTerm(secondTerm);
-        if (havingM.update == true) {
-          await this.expressionTermService.UpdateExpressionTerm(havingM.havingE.secondTerm).toPromise();
-        } else {
-          t1HavingExpressionTerm.secondTerm = await this.saveExpressionTerm(havingM.havingE.secondTerm);
-          havingM.havingE.secondTerm.id = t1HavingExpressionTerm.secondTerm.id;
-        }
-        t1HavingExpressionTerm.expressionType = this.constants.havingFilter;
-        t1HavingExpressionTerm.dataSourceTable = this.dataSourceTable;
-
-        if (havingM.parenthesis == true && this.havingModels.length > 1) {
-          t1HavingExpressionTerm.text += '(';
-          closebrocket = true;
-          //nombreOpenBrockets+=1;
-        }
-        t1HavingExpressionTerm.text +=
-          havingM.havingE.firstTerm.fieldsDataSource.function.designation +
-          '(' +
-          '\\"' +
-          fieldDataSource.tableField.table.name +
-          '\\"' +
-          '.' +
-          '\\"' +
-          fieldDataSource.tableField.name +
-          '\\"' +
-          ')' +
-          ' ' +
-          havingM.operator2.designation +
-          ' ';
-        if (havingM.operator2.designation == "between" || havingM.operator2.designation == 'in') {
-          t1HavingExpressionTerm.text += havingM.havingE.secondTerm.text;
-        } else {
-          t1HavingExpressionTerm.text += '\'' + havingM.havingE.secondTerm.text + '\'';
-        }
-        t1HavingExpressionTerm.order = this.orderHaving;
-        this.orderHaving += 1;
-
-        //t1HavingExpressionTerm = await this.saveExpressionTerm(t1HavingExpressionTerm);
-        if (havingM.update == true) {
-
-          t1HavingExpressionTerm.id = havingM.havingE.id;
-          await this.expressionTermService.UpdateExpressionTerm(t1HavingExpressionTerm).toPromise();
-        } else {
-          t1HavingExpressionTerm = await this.saveExpressionTerm(t1HavingExpressionTerm);
-          havingM.havingE.id = t1HavingExpressionTerm.id;
-          havingM.update = true;
-        }
-        this.expressionHavingTerms.push(t1HavingExpressionTerm);
-        this.havingSqlExpressionTerm = t1HavingExpressionTerm;
-      }
-    }
-    return await this.havingExpressionTerm;
-  }
-
-  /**
-   * this function for adding where condition to sql Query
-   * @param sqlQuery
-   * @returns
-   */
-  async addWhereToSqlQuery(sqlQuery: string): Promise<string> {
-    sqlQuery = sqlQuery.slice(0, -1);
-    sqlQuery += ' ' + 'where';
-    sqlQuery += ' ' + this.whereExpressionTerm.text + '"';
-    return sqlQuery;
-  }
-
-  /**
-   * this function for adding distinct condtion to sql Query
-   */
-  addDistinctToSqlQuery(sqlQuery: string): string {
-    sqlQuery = sqlQuery.replace('Select', 'Select DISTINCT');
-    return sqlQuery;
-  }
-
-  /**
-   * this function for adding group by condtion to sql Query
-   * @param sqlQuery
-   * @returns
-   */
-  addGroupByToSqlQuery(sqlQuery: string): string {
-    sqlQuery += ' ' + 'group by ';
-    this.dataSourceFieldsGroupBY.forEach((value, key, dataSourceFieldsGroupBY) => {
-      sqlQuery += '\\"' + value.tableField.table.name + '\\"' + '.' + '\\"' + value.tableField.name + '\\"';
-      if (!(key === dataSourceFieldsGroupBY.length - 1)) {
-        sqlQuery += ', ';
-      }
-    });
-    sqlQuery += '"';
-    console.log(sqlQuery);
-    return sqlQuery;
-  }
-
-  /**
-   * this function for adding order by condition to sql Query request
-   * @param sqlQuery
-   * @returns
-   */
-  addOrderByToSqlQuery(sqlQuery: string): string {
-    console.log(this.orderBys);
-    sqlQuery += ' ' + 'order by ';
-    this.orderBys.forEach((value, key, orderBys) => {
-      sqlQuery += '\\"' + value.tableField.table.name + '\\"' + '.' + '\\"' + value.tableField.name + '\\"' + ' ';
-      if (value.orderDirection == 1) {
-        sqlQuery += 'Asc';
-      } else {
-        sqlQuery += 'Desc';
-      }
-      if (!(key === orderBys.length - 1)) {
-        sqlQuery += ', ';
-      }
-    });
-    sqlQuery += '"';
-    console.log(sqlQuery);
-    return sqlQuery;
-  }
-
-  selectedDataSource() {
-    console.log(this.dataSource);
-  }
-
-  /**
-   * save data source in database
-   */
-  async saveDataSource(dataSource: DataSource): Promise<DataSource> {
-    return await this.dataSourceService.SaveDataSource(dataSource).toPromise();
-  }
-
-  /**
-   * with this function we delete a query
-   */
-  async deleteQuery() {
-    this.position = 'topright';
-    this.confirmationService.confirm({
-      message: 'Back to list of queries ?',
-      header: 'Discard Confirmation',
-      icon: 'pi pi-info-circle',
-      accept: async () => {
-        if (this.idd != -1) {
-          //await this.dataSourceService.DeleteDataSource(this.dataSource.id).toPromise();
-        }
-        this.router.navigate(['builder']);
-
-        this.msgs = { severity: 'info', summary: 'Confirmed', detail: 'List of queries' };
-      },
-      reject: () => {
-        this.router.navigate(['builder']);
-        this.msgs = { severity: 'info', summary: 'Rejected', detail: 'You have rejected' };
-      },
-      key: 'positionDialog',
-    });
-
-  }
 
   async ngOnInit(): Promise<void> {
     var idShow: number;
@@ -2718,24 +838,14 @@ export class DynamicBuilderComponent implements OnInit {
     this.joinedTables = [];
     this.orderByFiled = new OrderBy();
     this.principaleTableFields = [];
-    //this.GetAllFunction();
-    //this.GetALLClassification();
-    //get all tables
-    //this.LoadALL();
-    //this.GetOperators();
-    //this.GetJoins();
-    /**
-     * diplay result of query directly from liste of queries
-     */
+
     if (idShow == -2) {
       this.displayIdentification = false;
       this.displayJointures = false;
       this.displayChamps = false;
       this.displayFilters = false;
       this.displayResultat = true;
-      //await this.GetDataSource(this.idd);
-      //console.log(this.dataSource);
-      //this.GetDataRequest(this.dataSource.sqlText);
+
     }
 
     /**
@@ -2744,24 +854,10 @@ export class DynamicBuilderComponent implements OnInit {
     if (this.idd != -1) {
       this.ptreeTables = [];
       this.selectedItemFields = [];
-      //this.GetDataSource(this.idd);
-      //await this.GetDataSourceTables(this.idd);
-      //await this.createPtreTable();
-      //await this.GetDataSourceOrderBys(this.idd);
+
       this.ptree = true;
-      //await this.enableSelectedFieldCheckBox();
+
     }
-    //console.log(this.orderBys);
-    //console.log(this.orderByModels);
-
-
-
-
-
-
-
-
-
 
     this.tableColumnList = [
       { name: "Id", id: "1" },
@@ -2786,14 +882,6 @@ export class DynamicBuilderComponent implements OnInit {
       this.tableList = data;
     });
 
-
-
-
-
-
-
-
-
   }
 
   onParentTableChange(event)
@@ -2804,19 +892,37 @@ export class DynamicBuilderComponent implements OnInit {
       this.conditionTableColumnList = data;
       this.isParentTableSelected = true;
       this.selectedParentTableColumns = null;
+
+      this.isSelectedChildTable = false;
+      this.childTableColumnList = null;
+      this.selectedChildTableColumnList = null;
     });
   }
   onParentParentTableColumnChange(event)
   {
     let val = event.itemValue;
-    this.tableService.getTableFieldsByTableName(val.name).subscribe((data: any) => {
-      if(data.length > 0)
+    if (event.value.some((a) => a.id === val.id)) {
+
+      this.tableService.getTableFieldsByTableName(val.name).subscribe((data: any) => {
+        if(data.length > 0)
+        {
+          this.isSelectedChildTable = true;
+          this.childTableColumnList = data;
+          this.childTableName = val.name;
+          //this.selectedParentTableColumns = [...this.selectedParentTableColumns];
+        }
+      });
+  }
+  else{
+    if(val.name == this.childTableName)
       {
-        this.isSelectedChildTable = true;
-        this.childTableColumnList = data;
-        this.selectedParentTableColumns = [...this.selectedParentTableColumns];
+        this.isSelectedChildTable = false;
+        this.childTableColumnList = null;
+        this.childTableName = null;
+        this.selectedChildTableColumnList = null;
       }
-    });
+  }
+
   }
   onJoinTableChange(event)
   {
@@ -3152,17 +1258,17 @@ export class DynamicBuilderComponent implements OnInit {
   }
 
 
-  async saveAllDStable(): Promise<void> {
-    for (const dataSourceTable of this.dataSourceTables) {
-      dataSourceTable.dataSource = this.dataSource;
-      //this.dataSourceTable = await this.saveDataSourceTable(dataSourceTable);
-      if (dataSourceTable.id == undefined) {
-        this.dataSourceTable = await this.saveDataSourceTable(dataSourceTable);
-      } else {
-        await this.dataSourceTableService.UpdateDataSourceTable(dataSourceTable).toPromise();
-      }
-    }
-  }
+  // async saveAllDStable(): Promise<void> {
+  //   for (const dataSourceTable of this.dataSourceTables) {
+  //     dataSourceTable.dataSource = this.dataSource;
+  //     //this.dataSourceTable = await this.saveDataSourceTable(dataSourceTable);
+  //     if (dataSourceTable.id == undefined) {
+  //       this.dataSourceTable = await this.saveDataSourceTable(dataSourceTable);
+  //     } else {
+  //       await this.dataSourceTableService.UpdateDataSourceTable(dataSourceTable).toPromise();
+  //     }
+  //   }
+  // }
 
   async displayResultatClickHandler() {
     this.displayResultat = true;
@@ -3171,14 +1277,34 @@ export class DynamicBuilderComponent implements OnInit {
 
 
     let outputColumns=[];
+    let childOutputColumns = [];
     for(let item of this.selectedParentTableColumns){
-      outputColumns.push(item.name);
+      if(!this.tableList.some(obj => obj.name === item.name))
+          outputColumns.push(item.name);
+    }
+
+    for(let item of this.selectedChildTableColumnList){
+      if(!this.tableList.some(obj => obj.name === item.name))
+          childOutputColumns.push(item.name);
     }
 
     let dq = new DynamicQueryModel();
-    let dqcArr : DynamicCondition[] = [];
 
+    let joinTableList : JoinTableModel[] = [];
+    let joinTable = new JoinTableModel();
+
+
+    let dqcArr : DynamicCondition[] = [];
     let dqc = new DynamicCondition();
+
+    joinTable.tableName = this.childTableName;
+    joinTable.columns = childOutputColumns;
+    joinTable.parentTableName = this.selectedParentTable.name;
+    joinTable.parentColumnOn = this.childTableName;
+    joinTable.currentColumnOn = "Id";
+
+    joinTableList.push(joinTable);
+
 
     dqc.conditionTable = this.selectedConditionTable.name;
     dqc.conditionColumn = this.selectedConditionColumn.name;
@@ -3190,7 +1316,7 @@ export class DynamicBuilderComponent implements OnInit {
 
     dq.tableName = this.selectedParentTable.name;
     dq.columns = outputColumns;
-    dq.joinTables = [];
+    dq.joinTables = joinTableList;
     dq.whereConditions = dqcArr;
 
 
