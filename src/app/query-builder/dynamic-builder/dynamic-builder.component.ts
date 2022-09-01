@@ -82,6 +82,9 @@ export class DynamicBuilderComponent implements OnInit {
 
   dynamicData: any[] = [];
 
+  isSelectedChildTable : boolean = false;
+  childTableColumnList: any;
+  selectedChildTableColumnList: any;
 
 
 
@@ -2801,6 +2804,18 @@ export class DynamicBuilderComponent implements OnInit {
       this.conditionTableColumnList = data;
       this.isParentTableSelected = true;
       this.selectedParentTableColumns = null;
+    });
+  }
+  onParentParentTableColumnChange(event)
+  {
+    let val = event.itemValue;
+    this.tableService.getTableFieldsByTableName(val.name).subscribe((data: any) => {
+      if(data.length > 0)
+      {
+        this.isSelectedChildTable = true;
+        this.childTableColumnList = data;
+        this.selectedParentTableColumns = [...this.selectedParentTableColumns];
+      }
     });
   }
   onJoinTableChange(event)

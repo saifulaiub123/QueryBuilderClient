@@ -23,27 +23,30 @@ export class TableService {
   }
 
   /**
-   * get fields of a table 
-   * @param id 
-   * @returns 
+   * get fields of a table
+   * @param id
+   * @returns
    */
   getTableFields(id: number): Observable<TableFields[]> {
     return this.http.get<TableFields[]>(this.tablesUrl + '/TableField/' + id);
   }
+  getTableFieldsByTableName(name: string): Observable<TableFields[]> {
+    return this.http.get<TableFields[]>(this.tablesUrl + '/TableFieldByTableName/' + name);
+  }
 
   /**
-   * get primary fields of a table 
-   * @param id 
-   * @returns 
+   * get primary fields of a table
+   * @param id
+   * @returns
    */
   getTablePrimaryFields(id: number): Observable<TableFields> {
     return this.http.get<TableFields>(this.tablesUrl + '/TableField/Primary/' + id);
   }
 
   /**
-   * get foreign key fields of a table 
-   * @param id 
-   * @returns 
+   * get foreign key fields of a table
+   * @param id
+   * @returns
    */
   getTableForeignFields(id: number): Observable<TableFields[]> {
     return this.http.get<TableFields[]>(this.tablesUrl + '/TableField/Foreign/' + id);

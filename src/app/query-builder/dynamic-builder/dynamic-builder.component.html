@@ -347,12 +347,25 @@
                       <p-multiSelect
                             [options]="parentTableColumnList"
                             [(ngModel)]="selectedParentTableColumns"
+                            (onChange)="onParentParentTableColumnChange($event)"
                             defaultLabel="Select Attributes"
                             optionLabel="name"
                             [style]="{ width: '100%' }"
                             display="chip"
                             name="second"
 
+                            >
+                        </p-multiSelect>
+                    </div>
+                    <div *ngIf="isSelectedChildTable" class="col-sm-3 col-md-6 col-lg-4" >
+                      <p-multiSelect
+                            [options]="childTableColumnList"
+                            [(ngModel)]="selectedChildTableColumnList"
+                            defaultLabel="Select Child Attributes"
+                            optionLabel="name"
+                            [style]="{ width: '100%' }"
+                            display="chip"
+                            name="childTableColumnList"
                             >
                         </p-multiSelect>
                     </div>
